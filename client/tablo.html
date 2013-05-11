@@ -1,0 +1,179 @@
+<head>
+  <title>Tablo</title>
+</head>
+
+<body>
+  {{> page}}
+</body>
+
+<template name="page">
+  <div id="page">
+    {{> header}}
+    {{> nav}}
+    {{> main}}
+    {{> sidebar}}
+    {{> footer}}
+  </div>
+</template>
+
+<template name="header">
+  <div id="header">
+    <h1><span class="logo">&#x229e;</span>Tablo<!-- <span class="logo">&#x1030E;</span> --></h1>
+  </div>
+</template>
+
+<template name="nav">
+  <div id="nav">
+    <ul>
+      <!-- <li><a href="/">Option 1</a></li> -->
+      <!-- <li><a href="/">Option 2</a></li> -->
+      <!-- <li><a href="/">Option 3</a></li> -->
+      <!-- <li><a href="/">Option 4</a></li> -->
+      <!-- <li><a href="/">Option 5</a></li> -->
+    </ul>
+  </div>
+</template>
+
+<template name="main">
+  <div id="main">
+    <!-- <h2>Main</h2> -->
+    {{#if showViewTable}}
+    {{> viewTable}}
+    {{/if}}
+    {{#if showEditTable}}
+    {{> editTable}}
+    {{/if}}
+  </div>
+</template>
+
+<template name="sidebar">
+  <div id="sidebar">
+    <!-- <h2>Sidebar</h2> -->
+    <p>
+      <button type="button" id="reset">Reset</button>
+      <!-- Template.sidebar -->
+    </p>
+    <table id="tablelist">
+      <caption>Tables.</caption>
+      <thead>
+        <tr>
+          <th>Tables:</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each tableList}}
+        <tr>
+          <td name="{{lookupTableID}}">{{displayTitle}}<br/><em><code>{{lookupTableID}}</code></em></td>
+        </tr>
+        {{else}}
+        <em>loading...</em>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</template>
+
+<template name="viewTable">
+  <p>Viewing</p>
+  <table class="viewtable">
+    <caption>{{title}}</caption>
+    <thead>
+      <tr>
+        <th></th>
+        <th></th>
+        <th colspan="{{colspan}}">{{v1}}</th>
+      </tr>
+      <tr>
+        <th></th>
+        <th></th>
+        {{#each eachcol}}
+        <th>{{c1item col}}</th>
+        {{/each}}
+        <th class="margin-col">total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each eachrow}}
+      <tr>
+        {{#if firstrow row}}
+        <th rowspan="{{rowspan}}">{{v0}}</th>
+        {{/if}}
+        <th>{{c0item row}}</th>
+        {{#each eachcol}}
+        <td>{{cell ../row col}}</td>
+        {{/each}}
+        <td class="margin-col">{{mcol row}}</td>
+      </tr>
+      {{/each}}
+      <tr class="margin-row">
+        <th>total</th>
+        {{#each eachcol}}
+        <td>{{mrow col}}</td>
+        {{/each}}
+        <td class="margin-col">{{grandtotal}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <p><em>df</em>={{df}}
+  &nbsp;
+  <em>&#x03C7;&#x00B2;</em>={{chisq}}
+  &nbsp;
+  <em>P</em>={{pvalue}}</p>
+  <button type="button" id="viewedit">Edit</button>
+  <button type="button" id="viewclose">Close</button>
+</template>
+
+<!-- inspired by http://stackoverflow.com/questions/14059157/handlebars-js-each-loop-inside-another-each-loop-3 -->
+<template name="editTable">
+  <p>Editing</p>
+  <form>
+    <input class="title" name="title" type="text" value="{{title}}" />
+    <table class="edittable">
+      <caption>editing</caption>
+      <thead>
+        <tr>
+          <th></th>
+          <th></th>
+          <th colspan="{{colspan}}"><input class="variable" name="variable1" type="text" value="{{v1}}" /></th>
+        </tr>
+        <tr>
+          <th></th>
+          <th></th>
+          {{#each eachcol}}
+          <th><input class="category" name="category1,{{col}}" type="text" value="{{c1item col}}" /></th>
+          {{/each}}
+          <th class="margin-col">total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each eachrow}}
+        <tr>
+          {{#if firstrow row}}
+          <th rowspan="{{rowspan}}"><input class="variable" name="variable0" type="text" value="{{v0}}" /></th>
+          {{/if}}
+          <th><input class="category" name="category0,{{row}}" type="text" value="{{c0item row}}" /></th>
+          {{#each eachcol}}
+          <td><input class="cell" name="cell{{../row}},{{col}}" type="number" value="{{cell ../row col}}" /></td>
+          {{/each}}
+          <td class="margin-col">{{mcol row}}</td>
+        </tr>
+        {{/each}}
+        <tr class="margin-row">
+          <th>total</th>
+          {{#each eachcol}}
+          <td>{{mrow col}}</td>
+          {{/each}}
+          <td class="margin-col">{{grandtotal}}</td>
+        </tr>
+      </tbody>
+    </table>
+    <button type="button" id="editsave">Save</button>
+    <button type="button" id="editcancel">Cancel</button>
+  </form>
+</template>
+
+<template name="footer">
+  <div id="footer">
+    <p>Footer</p>
+  </div>
+</template>

@@ -1,0 +1,85 @@
+body,
+html {
+  margin:0;
+  padding:0;
+  color:#000;
+  background:#a7a09a;
+  font-family: "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Tahoma, sans-serif;
+}
+#page {
+  width:750px;
+  margin:0 auto;
+  background:#99c;
+}
+#header {
+  padding:5px 10px;
+  background:#ddd;
+}
+h1 {
+  margin:0;
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, sans-serif;
+  text-transform: uppercase;
+}
+#nav {
+  padding:5px 10px;
+  background:#c99;
+}
+#nav ul {
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+#nav li {
+  display:inline;
+  margin:0;
+  padding:0;
+}
+#main {
+  float:left;
+  width:480px;
+  padding:10px;
+  background:#9c9;
+}
+h2 {
+  margin:0 0 1em;
+}
+#sidebar {
+  float:right;
+  width:230px;
+  padding:10px;
+  background:#99c;
+}
+#footer {
+  clear:both;
+  padding:5px 10px;
+  background:#cc9;
+}
+#footer p {
+  margin:0;
+}
+* html #footer {
+  height:1px;
+}
+
+input.title {
+  width: 30em;
+}
+input.variable {
+  width: 6em;
+}
+input.category {
+  width: 6em;
+}
+input.cell {
+  width: 6em;
+}
+table {
+  border-collapse:collapse;
+}
+table, td, th {
+  border:1px solid black;
+}
+.margin-row, .margin-col {
+  color:#777;
+  font-style: italic;
+}
