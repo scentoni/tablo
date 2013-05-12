@@ -242,3 +242,25 @@ Template.editTable.events
     t.data[j] = val
     ContingencyTable.updateMargins t
     Session.set 'table', t
+
+  'click .deleterow': (event, template) ->
+    t = Session.get 'table'
+    j = parseInt (event.target.name.replace /^deleterow/, ''), 10
+    return unless 0 <= j < t.dimensions[0] and 2 < t.dimensions[0]
+    console.log "deleting row #{j}"
+    p = ContingencyTable.identityPermutation t
+    p[0].splice j, 1
+    ContingencyTable.permute t, p
+    ContingencyTable.updateMargins t
+    Session.set 'table', t
+
+  'click .deletecol': (event, template) ->
+    t = Session.get 'table'
+    j = parseInt (event.target.name.replace /^deletecol/, ''), 10
+    return unless 0 <= j < t.dimensions[1] and 2 < t.dimensions[1]
+    console.log "deleting column #{j}"
+    p = ContingencyTable.identityPermutation t
+    p[1].splice j, 1
+    ContingencyTable.permute t, p
+    ContingencyTable.updateMargins t
+    Session.set 'table', t

@@ -155,13 +155,13 @@
           {{#each eachcol}}
           <td><input class="cell" name="cell{{../row}},{{col}}" type="number" value="{{cell ../row col}}" /></td>
           {{/each}}
-          <td class="margin-col">{{mcol row}}</td>
+          <td class="margin-col">{{mcol row}}<button type="button" class="deleterow" name="deleterow{{row}}">X</button></td>
         </tr>
         {{/each}}
         <tr class="margin-row">
           <th>total</th>
           {{#each eachcol}}
-          <td>{{mrow col}}</td>
+          <td>{{mrow col}}<button type="button" class="deletecol" name="deletecol{{col}}">X</button></td>
           {{/each}}
           <td class="margin-col">{{grandtotal}}</td>
         </tr>
