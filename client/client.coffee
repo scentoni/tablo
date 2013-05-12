@@ -196,7 +196,7 @@ Template.editTable.events
   'click #editcancel': (event, template) ->
     t = Session.get 'table'
     t = Tables.findOne t._id
-    ContingencyTable.updateMargins t
+    ContingencyTable.updateAll t
     Session.set 'table', t
     Session.set 'showEditTable', false
     Session.set 'showViewTable', true
