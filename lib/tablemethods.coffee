@@ -1,3 +1,7 @@
+@toFixed = (x, prec = 0) ->
+  power = Math.pow 10, prec
+  (Math.round(x*power) / power).toFixed(prec)
+
 # example data taken from
 # http://www.stat.cmu.edu/~gklein/discrete/OpeningExamples-2011.pdf
 @resetDatabase = ->
@@ -63,17 +67,18 @@ class @ContingencyTable
     newdimensions = (0 for i in parray)
     for c, i in parray
       newdimensions[i] = c.length
-    newdata = (0 for i in [0...prod(newdimensions)])
+    newdata = (0 for i in [0...MixedBase.prod(newdimensions)])
+    maxdata = MixedBase.prod(t.dimensions)
     for d, i in newdata
       rc = MixedBase.encode i, newdimensions
       newrc = (0 for j in rc)
       for c, j in rc
         newrc[j] = parray[j][c]
       j = MixedBase.decode newrc, t.dimensions
-      newdata[i] = t.data[j]
+      newdata[i] = t.data[j] ? 0
     newcategories = ([] for i in t.categories)
     for p, i in parray
-      newcategories[i] = (t.categories[i][c] for c, j in p)
+      newcategories[i] = ((t.categories[i][c] ? "") for c, j in p)
     t.data = newdata
     t.dimensions = newdimensions
     t.categories = newcategories
@@ -85,9 +90,4 @@ class @ContingencyTable
       p.push [0...d]
     p
 
-@toFixed = (x, prec = 0) ->
-  power = Math.pow 10, prec
-  (Math.round(x*power) / power).toFixed(prec)
 
-@prod = (v) ->
-  v.reduce( (a, b) -> a*b)
