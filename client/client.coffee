@@ -264,3 +264,23 @@ Template.editTable.events
     ContingencyTable.permute t, p
     ContingencyTable.updateMargins t
     Session.set 'table', t
+
+  'click .insertrow': (event, template) ->
+    t = Session.get 'table'
+    j = t.dimensions[0]
+    console.log "inserting row #{j}"
+    p = ContingencyTable.identityPermutation t
+    p[0].push j
+    ContingencyTable.permute t, p
+    ContingencyTable.updateMargins t
+    Session.set 'table', t
+
+  'click .insertcol': (event, template) ->
+    t = Session.get 'table'
+    j = t.dimensions[1]
+    console.log "inserting col #{j}"
+    p = ContingencyTable.identityPermutation t
+    p[1].push j
+    ContingencyTable.permute t, p
+    ContingencyTable.updateMargins t
+    Session.set 'table', t

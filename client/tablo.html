@@ -142,7 +142,7 @@
           {{#each eachcol}}
           <th><input class="category" name="category1,{{col}}" type="text" value="{{c1item col}}" /></th>
           {{/each}}
-          <th class="margin-col">total</th>
+          <th class="margin-col"><button type="button" class="insertcol" name="insertcol">+</button>total</th>
         </tr>
       </thead>
       <tbody>
@@ -159,7 +159,7 @@
         </tr>
         {{/each}}
         <tr class="margin-row">
-          <th>total</th>
+          <th><button type="button" class="insertrow" name="insertrow">+</button>total</th>
           {{#each eachcol}}
           <td>{{mrow col}}<button type="button" class="deletecol" name="deletecol{{col}}">X</button></td>
           {{/each}}
