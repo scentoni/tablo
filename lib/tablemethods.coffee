@@ -2,6 +2,7 @@
   power = Math.pow 10, prec
   (Math.round(x*power) / power).toFixed(prec)
 
+# TODO: remember to lock this up on server side only before deployment!
 # example data taken from
 # http://www.stat.cmu.edu/~gklein/discrete/OpeningExamples-2011.pdf
 @resetDatabase = ->
