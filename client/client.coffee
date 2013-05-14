@@ -1,14 +1,13 @@
 Meteor.subscribe "tables"
 
+blankTable =
+  title: ''
+  variables: ['', '']
+  categories: [['', ''], ['', '']]
+  data: [0, 0, 0, 0]
+
 Meteor.startup ->
   console.log "Hello!"
-  blankTable =
-    title: ''
-    variables: ['', '']
-    categories: [['', ''], ['', '']]
-    data: [0, 0, 0, 0]
-  ContingencyTable.updateMargins blankTable
-  Session.set 'table', blankTable
   Session.set 'showViewTable', false
   Session.set 'showEditTable', false
 
@@ -47,6 +46,13 @@ Template.sidebar.events
     Session.set 'showViewTable', true
     Session.set 'showEditTable', false
     console.log t
+
+  "click #addtable": (event, template) ->
+    console.log "Adding table"
+    ContingencyTable.updateMargins blankTable
+    Session.set 'table', blankTable
+    Session.set 'showViewTable', false
+    Session.set 'showEditTable', true
 
 ###########################################################
 # Template.main
@@ -202,20 +208,39 @@ Template.editTable.grandtotal = ->
 Template.editTable.events
   'click #editcancel': (event, template) ->
     t = Session.get 'table'
-    t = Tables.findOne t._id
-    ContingencyTable.updateAll t
-    Session.set 'table', t
-    Session.set 'showEditTable', false
-    Session.set 'showViewTable', true
+    if t._id
+      t = Tables.findOne t._id
+      ContingencyTable.updateAll t
+      Session.set 'table', t
+      Session.set 'showEditTable', false
+      Session.set 'showViewTable', true
+    else
+      Session.set 'table', {}
+      Session.set 'showEditTable', false
+      Session.set 'showViewTable', false
 
   'click #editsave': (event, template) ->
     t = Session.get 'table'
-    ContingencyTable.updateAll t
-    Session.set 'table', t
-    Tables.update t._id, t
-    console.log 'Saving!'
-    Session.set 'showEditTable', false
-    Session.set 'showViewTable', true
+    if t._id
+      ContingencyTable.updateAll t
+      Session.set 'table', t
+      Tables.update t._id, t
+      console.log 'Saving!'
+      Session.set 'showEditTable', false
+      Session.set 'showViewTable', true
+    else
+      # ContingencyTable.updateAll t
+      Meteor.call 'createTable', t, (error, tableid) ->
+        if error
+          console.log 'ERROR: Could not insert table'
+          console.log t
+        else
+          newt = Tables.findOne tableid
+          ContingencyTable.updateAll newt
+          Session.set 'table', newt
+          Session.set 'showEditTable', false
+          Session.set 'showViewTable', true
+
 
   'keyup input.title': (event, template) ->
     val = event.target.value
