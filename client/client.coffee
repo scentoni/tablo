@@ -135,6 +135,13 @@ Template.viewTable.events
     Session.set 'showViewTable', false
     Session.set 'showEditTable', true
 
+  'click #viewdelete': (event, template) ->
+    t = Session.get 'table'
+    console.log "deleting table #{t._id}!"
+    Session.set 'showViewTable', false
+    Session.set 'table', {}
+    Tables.remove t._id
+
 ###########################################################
 # Template.editTable
 Template.editTable.rowspan = ->
