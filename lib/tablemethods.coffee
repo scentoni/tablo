@@ -56,8 +56,10 @@ class @ContingencyTable
     for di, i in t.data
       [r, c] = MixedBase.encode i, t.dimensions
       t.expected[i] = t.margincol[r] * t.marginrow[c] * itotal
-      t.chisq += square(t.data[i] - t.expected[i])/t.expected[i]
+      if t.expected[i]
+        t.chisq += square(t.data[i] - t.expected[i])/t.expected[i]
     t.pvalue = Chisq.pvalue t.df, t.chisq
+    t
 
   @updateAll = (t) ->
     @updateStatistics t
