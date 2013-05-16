@@ -36,6 +36,12 @@ Template.page.events
 ###########################################################
 # Template.sidebar
 
+Template.sidebar.userList = ->
+  Meteor.users.find {}
+
+Template.sidebar.displayUsername = ->
+  this.username
+
 Template.sidebar.tableList = ->
   Tables.find {}
 

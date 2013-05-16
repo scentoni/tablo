@@ -61,6 +61,16 @@
       <button type="button" id="reset">Reset</button>
       <!-- Template.sidebar -->
     </p>
+    <table id="userlist">
+      <caption>Users.</caption>
+      <tbody>
+        {{#each userList}}
+        <tr>
+          <td>{{displayUsername}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
     <table id="tablelist">
       <caption>Tables.</caption>
       <thead>
