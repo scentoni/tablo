@@ -18,7 +18,37 @@ Meteor.publish "directory", ->
 # http://www.stat.cmu.edu/~gklein/discrete/OpeningExamples-2011.pdf
 @resetDatabase = ->
   console.log "Resetting database!"
+  Meteor.users.remove {}
   Tables.remove {}
+  initialUsers = [
+    email: "admin@example.com"
+    password: "password"
+    username: "admin"
+    name: "Administrator"
+    roles: ["admin"]
+  ,
+    email: "foo@example.com"
+    password: "password"
+    username: "foo"
+    name: "Foo"
+    roles: []
+  ,
+    email: "bar@example.com"
+    password: "password"
+    username: "bar"
+    name: "Bar"
+    roles: []
+  ]
+  for user in initialUsers
+    Accounts.createUser
+      email: user.email
+      password: user.password
+      username: user.username
+      profile:
+        name: user.name
+      roles: user.roles
+  admin = Meteor.users.findOne
+    username: "admin"
   sampleTables = [
     title: "gender and politics"
     description: "2000 General Social Survey"
@@ -42,5 +72,6 @@ Meteor.publish "directory", ->
     publicq: true
   ]
   for t in sampleTables
+    t.owner = admin._id
     ContingencyTable.updateMargins t
     Tables.insert t

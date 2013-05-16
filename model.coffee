@@ -64,3 +64,6 @@ Meteor.methods
 
 @lookupTableID = (table) ->
   table._id
+
+@isAdmin = (user) ->
+  user.roles.some (role) -> role is 'admin'
