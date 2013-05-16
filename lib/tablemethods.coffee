@@ -2,29 +2,6 @@
   power = Math.pow 10, prec
   (Math.round(x*power) / power).toFixed(prec)
 
-# TODO: remember to lock this up on server side only before deployment!
-# example data taken from
-# http://www.stat.cmu.edu/~gklein/discrete/OpeningExamples-2011.pdf
-@resetDatabase = ->
-  console.log "Resetting database!"
-  if Tables?.find()
-    for t in Tables.find().fetch()
-      Tables.remove t._id
-  sampleTables = [
-    title: "political party affiliation vs. gender"
-    variables: ["gender", "party"]
-    categories: [["female", "male"], ["Dem", "ind", "Rep"]]
-    data: [762, 484, 327, 239, 468, 477]
-  ,
-    title: "cold French skiers"
-    variables: ["intervention", "outcome"]
-    categories: [["placebo", "treatment"], ["cold", "no cold"]]
-    data: [31, 109, 17, 122]
-  ]
-  for t in sampleTables
-    ContingencyTable.updateMargins t
-    Meteor.call 'createTable', t
-
 class @ContingencyTable
   @updateMargins = (t) ->
     t.dimensions = new Array t.categories.length

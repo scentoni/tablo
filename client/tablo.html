@@ -19,6 +19,14 @@
 <template name="header">
   <div id="header">
     <h1><span class="logo">&#x229e;</span>Tablo<!-- <span class="logo">&#x1030E;</span> --></h1>
+    {{#if currentUser}}
+    Welcome, {{currentUser.username}}!
+    {{else}}
+    Please sign in to create your own tables
+    {{/if}}
+    <div style="float: right">
+      {{loginButtons align="right"}}
+    </div>
   </div>
 </template>
 
@@ -70,14 +78,17 @@
         {{/each}}
       </tbody>
     </table>
+    {{#if currentUser}}
     <button id="addtable">Add</button>
+    {{/if}}
   </div>
 </template>
 
 <template name="viewTable">
-  <p>Viewing</p>
+  <h2>{{title}}</h2>
+  <p>{{description}}</p>
   <table class="viewtable">
-    <caption>{{title}}</caption>
+    <caption></caption>
     <thead>
       <tr>
         <th></th>
@@ -115,14 +126,18 @@
       </tr>
     </tbody>
   </table>
-  <p><em>df</em>={{df}}
-  &nbsp;
-  <em>&#x03C7;&#x00B2;</em>={{chisq}}
-  &nbsp;
-  <em>P</em>={{pvalue}}</p>
-  <button type="button" id="viewedit">Edit</button>
+  <p>
+    <em>df</em>={{df}}
+    &nbsp;
+    <em>&#x03C7;&#x00B2;</em>={{chisq}}
+    &nbsp;
+    <em>P</em>={{pvalue}}
+  </p>
   <button type="button" id="viewclose">Close</button>
+  {{#if editable}}
+  <button type="button" id="viewedit">Edit</button>
   <button type="button" id="viewdelete">Delete</button>
+  {{/if}}
 </template>
 
 <!-- inspired by http://stackoverflow.com/questions/14059157/handlebars-js-each-loop-inside-another-each-loop-3 -->
@@ -130,6 +145,7 @@
   <p>Editing</p>
   <form>
     <input class="title" name="title" type="text" value="{{title}}" />
+    <p><input class="description" name="description" type="text" value="{{description}}" /></p>
     <table class="edittable">
       <caption>editing</caption>
       <thead>
@@ -169,6 +185,7 @@
         </tr>
       </tbody>
     </table>
+    Public:<input id="publicq" checked="{{publicq}}" type="checkbox" />
     <button type="button" id="editsave">Save</button>
     <button type="button" id="editcancel">Cancel</button>
   </form>

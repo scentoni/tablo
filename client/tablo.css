@@ -62,6 +62,9 @@ h2 {
 }
 
 input.title {
+  width: 6em;
+}
+input.description {
   width: 30em;
 }
 input.variable {

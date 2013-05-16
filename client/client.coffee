@@ -1,10 +1,17 @@
+Accounts.ui.config
+  passwordSignupFields: "USERNAME_AND_EMAIL"
+
 Meteor.subscribe "tables"
 
+Meteor.subscribe "directory"
+
 blankTable =
-  title: ''
+  title: ' '
+  description: ' '
   variables: ['', '']
   categories: [['', ''], ['', '']]
   data: [0, 0, 0, 0]
+  publicq: true
 
 Meteor.startup ->
   console.log "Hello!"
@@ -24,7 +31,7 @@ Template.page.events
     Session.set 'showViewTable', false
     Session.set 'showEditTable', false
     Session.set 'table', {}
-    resetDatabase()
+    Meteor.call 'resetDB'
 
 ###########################################################
 # Template.sidebar
@@ -64,6 +71,11 @@ Template.main.showEditTable = ->
 
 ###########################################################
 # Template.viewTable
+
+Template.viewTable.editable = ->
+  t = Session.get 'table'
+  t?.owner and Meteor.user()?._id and t.owner and Meteor.user()._id
+
 Template.viewTable.df = ->
   t = Session.get 'table'
   t.df
@@ -119,6 +131,10 @@ Template.viewTable.title = ->
   t = Session.get 'table'
   t.title
 
+Template.viewTable.description = ->
+  t = Session.get 'table'
+  t.description
+
 Template.viewTable.v0 = ->
   t = Session.get 'table'
   t.variables[0]
@@ -143,10 +159,10 @@ Template.viewTable.events
 
   'click #viewdelete': (event, template) ->
     t = Session.get 'table'
-    console.log "deleting table #{t._id}!"
-    Session.set 'showViewTable', false
-    Session.set 'table', {}
-    Tables.remove t._id
+    console.log "attempting to delete table #{t._id}!"
+    Tables.remove t._id, (error) ->
+      Session.set 'showViewTable', false
+      Session.set 'table', {}
 
 ###########################################################
 # Template.editTable
@@ -193,6 +209,10 @@ Template.editTable.title = ->
   t = Session.get 'table'
   t.title
 
+Template.editTable.description = ->
+  t = Session.get 'table'
+  t.description
+
 Template.editTable.v0 = ->
   t = Session.get 'table'
   t.variables[0]
@@ -205,7 +225,17 @@ Template.editTable.grandtotal = ->
   t = Session.get 'table'
   t.grandtotal
 
+Template.editTable.publicq = ->
+  t = Session.get 'table'
+  t.publicq
+
 Template.editTable.events
+  'click #publicq': (event, template) ->
+    t = Session.get 'table'
+    t.publicq = event.target.checked
+    console.log "public status is now #{t.publicq}"
+    Session.set 'table', t
+
   'click #editcancel': (event, template) ->
     t = Session.get 'table'
     if t._id
@@ -224,13 +254,19 @@ Template.editTable.events
     if t._id
       ContingencyTable.updateAll t
       Session.set 'table', t
-      Tables.update t._id, t
-      console.log 'Saving!'
-      Session.set 'showEditTable', false
-      Session.set 'showViewTable', true
+      Meteor.call "updateTable", t, (error) ->
+        if error
+          console.log 'ERROR: Could not update table'
+          console.log t
+        else
+          newt = Tables.findOne t._id
+          ContingencyTable.updateAll newt
+          Session.set 'table', newt
+          Session.set 'showEditTable', false
+          Session.set 'showViewTable', true
     else
       # ContingencyTable.updateAll t
-      Meteor.call 'createTable', t, (error, tableid) ->
+      Meteor.call "createTable", t, (error, tableid) ->
         if error
           console.log 'ERROR: Could not insert table'
           console.log t
@@ -241,12 +277,18 @@ Template.editTable.events
           Session.set 'showEditTable', false
           Session.set 'showViewTable', true
 
-
   'keyup input.title': (event, template) ->
     val = event.target.value
     t = Session.get 'table'
     console.log "updating title = #{val}"
     t.title = val
+    Session.set 'table', t
+
+  'keyup input.description': (event, template) ->
+    val = event.target.value
+    t = Session.get 'table'
+    console.log "updating description = #{val}"
+    t.description = val
     Session.set 'table', t
 
   'keyup input.variable': (event, template) ->
