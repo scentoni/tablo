@@ -43,7 +43,13 @@ Template.sidebar.lookupTableID = ->
   lookupTableID this
 
 Template.sidebar.displayTitle = ->
-  displayTitle this
+  this.title
+
+Template.sidebar.displayOwner = ->
+  if this.owner
+    (Meteor.users.findOne this.owner).username
+  else
+    ''
 
 Template.sidebar.events
   "click td": (event, template) ->
