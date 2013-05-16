@@ -45,6 +45,9 @@ Template.sidebar.displayUsername = ->
 Template.sidebar.tableList = ->
   Tables.find {}
 
+Template.sidebar.displayUserID = ->
+  this._id
+
 Template.sidebar.lookupTableID = ->
   lookupTableID this
 
