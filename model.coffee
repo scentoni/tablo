@@ -14,14 +14,14 @@ Tables.allow
     false # no cowboy inserts -- use createTable method
 
   update: (userId, table, fields, modifier) ->
-    return false if userId isnt table.owner # not the owner
+    return false unless isModifiableByUserId(userId, table)
     allowed = ["title", "description", "data", "variables", "categories", "publicq"]
     return false if _.difference(fields, allowed).length # tried to write to forbidden field
     true
 
   remove: (userId, table) ->
-    # You can only remove tables that you created
-    table.owner is userId
+    # You can only remove tables that you created, unless you are an admin
+    @isModifiableByUserId(table, userId)
 
 ######################
 
@@ -55,7 +55,6 @@ Meteor.methods
         description: options.description
         publicq: options.publicq
 
-
   resetDB: ->
     resetDatabase()
 
@@ -64,3 +63,9 @@ Meteor.methods
 
 @lookupTableID = (table) ->
   table._id
+
+@isModifiableByUserId = (userId, table) ->
+  userId and (table.owner is userId or Roles.userIsInRole(userId, ["admin"]))
+
+@isModifiable = (table) ->
+  isModifiableByUserId Meteor.user()?._id, table

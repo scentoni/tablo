@@ -87,9 +87,9 @@ Template.main.showEditTable = ->
 ###########################################################
 # Template.viewTable
 
-Template.viewTable.editable = ->
+Template.viewTable.isModifiable = ->
   t = Session.get 'table'
-  t?.owner and Meteor.user()?._id and t.owner and Meteor.user()._id
+  isModifiable t
 
 Template.viewTable.df = ->
   t = Session.get 'table'
