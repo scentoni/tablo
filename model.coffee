@@ -25,9 +25,22 @@ Tables.allow
 
 ######################
 
+@NonEmptyString = Match.Where((x) ->
+  check x, String
+  x.length isnt 0
+)
+
 Meteor.methods
   # options should include: title, description, data, publicq
   createTable: (options = {}) ->
+    check options, Match.ObjectIncluding
+      title: NonEmptyString
+      description: NonEmptyString
+      publicq: Boolean
+      variables: []
+      data: [Number]
+      variables: [NonEmptyString]
+      categories: [[NonEmptyString]]
     throw new Meteor.Error(400, "Required parameter missing") unless typeof options.title is "string" and options.title.length and typeof options.description is "string" and options.description.length
     throw new Meteor.Error(413, "Title too long") if options.title.length > 100
     throw new Meteor.Error(413, "Description too long") if options.description.length > 1000
@@ -42,7 +55,16 @@ Meteor.methods
       publicq: options.publicq
 
   updateTable: (options = {}) ->
-    throw new Meteor.Error(400, "Required parameter missing") unless typeof options.title is "string" and options.title.length and typeof options.description is "string" and options.description.length
+    check options, Match.ObjectIncluding
+      _id: NonEmptyString
+      owner: NonEmptyString
+      title: NonEmptyString
+      description: NonEmptyString
+      publicq: Boolean
+      variables: []
+      data: [Number]
+      variables: [NonEmptyString]
+      categories: [[NonEmptyString]]
     throw new Meteor.Error(413, "Title too long") if options.title.length > 100
     throw new Meteor.Error(413, "Description too long") if options.description.length > 1000
     throw new Meteor.Error(403, "You must be logged in") unless @userId
