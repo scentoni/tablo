@@ -25,10 +25,9 @@ Tables.allow
 
 ######################
 
-@NonEmptyString = Match.Where((x) ->
+@NonEmptyString = Match.Where (x) ->
   check x, String
   x.length isnt 0
-)
 
 Meteor.methods
   # options should include: title, description, data, publicq
