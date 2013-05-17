@@ -40,13 +40,14 @@ Meteor.publish "directory", ->
     roles: []
   ]
   for user in initialUsers
-    Accounts.createUser
+    userid = Accounts.createUser
       email: user.email
       password: user.password
       username: user.username
       profile:
         name: user.name
-      roles: user.roles
+    if user.roles.length > 0
+      Roles.addUsersToRoles userid, user.roles
   admin = Meteor.users.findOne
     username: "admin"
   sampleTables = [

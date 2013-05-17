@@ -61,37 +61,45 @@
       <button type="button" id="reset">Reset</button>
       <!-- Template.sidebar -->
     </p>
-    <table id="userlist">
-      <caption>Users.</caption>
-      <tbody>
-        {{#each userList}}
-        <tr>
-          <td>{{displayUsername}}<br/><em><code>{{displayUserID}}</code></em></td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-    <table id="tablelist">
-      <caption>Tables.</caption>
-      <thead>
-        <tr>
-          <th>Tables:</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each tableList}}
-        <tr>
-          <td>{{displayOwner}}:{{displayTitle}}<br/><em><code>{{lookupTableID}}</code></em></td>
-        </tr>
-        {{else}}
-        <em>loading...</em>
-        {{/each}}
-      </tbody>
-    </table>
-    {{#if currentUser}}
-    <button id="addtable">Add</button>
-    {{/if}}
+    {{> userList}}
+    {{> tableList}}
   </div>
+</template>
+
+<template name="userList">
+  <table id="userlist">
+    <caption>Users.</caption>
+    <tbody>
+      {{#each userList}}
+      <tr>
+        <td>{{displayUsername}}<br/><em><code>{{displayUserID}}</code></em></td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</template>
+
+<template name="tableList">
+  <table id="tablelist">
+    <caption>Tables.</caption>
+    <thead>
+      <tr>
+        <th>Tables:</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each tableList}}
+      <tr>
+        <td>{{displayOwner}}:{{displayTitle}}<br/><em><code>{{lookupTableID}}</code></em></td>
+      </tr>
+      {{else}}
+      <em>loading...</em>
+      {{/each}}
+    </tbody>
+  </table>
+  {{#if currentUser}}
+  <button id="addtable">Add</button>
+  {{/if}}
 </template>
 
 <template name="viewTable">

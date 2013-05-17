@@ -36,31 +36,31 @@ Template.page.events
 ###########################################################
 # Template.sidebar
 
-Template.sidebar.userList = ->
+Template.userList.userList = ->
   Meteor.users.find {}
 
-Template.sidebar.displayUsername = ->
+Template.userList.displayUsername = ->
   this.username
 
-Template.sidebar.tableList = ->
-  Tables.find {}
-
-Template.sidebar.displayUserID = ->
+Template.userList.displayUserID = ->
   this._id
 
-Template.sidebar.lookupTableID = ->
+Template.tableList.tableList = ->
+  Tables.find {}
+
+Template.tableList.lookupTableID = ->
   lookupTableID this
 
-Template.sidebar.displayTitle = ->
+Template.tableList.displayTitle = ->
   this.title
 
-Template.sidebar.displayOwner = ->
+Template.tableList.displayOwner = ->
   if this.owner
     (Meteor.users.findOne this.owner).username
   else
     ''
 
-Template.sidebar.events
+Template.tableList.events
   "click td": (event, template) ->
     t = Tables.findOne this._id
     ContingencyTable.updateAll t

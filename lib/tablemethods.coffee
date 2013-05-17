@@ -69,5 +69,3 @@ class @ContingencyTable
     for d, i in t.dimensions
       p.push [0...d]
     p
-
-
