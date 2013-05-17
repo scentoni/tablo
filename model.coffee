@@ -32,15 +32,17 @@ Tables.allow
 Meteor.methods
   # options should include: title, description, data, publicq
   createTable: (options = {}) ->
-    check options, Match.ObjectIncluding
-      title: NonEmptyString
-      description: NonEmptyString
-      publicq: Boolean
-      variables: []
-      data: [Number]
-      variables: [NonEmptyString]
-      categories: [[NonEmptyString]]
-    throw new Meteor.Error(400, "Required parameter missing") unless typeof options.title is "string" and options.title.length and typeof options.description is "string" and options.description.length
+    try
+      check options, Match.ObjectIncluding
+        title: NonEmptyString
+        description: NonEmptyString
+        publicq: Boolean
+        variables: []
+        data: [Number]
+        variables: [NonEmptyString]
+        categories: [[NonEmptyString]]
+    catch e
+      throw new Meteor.Error(400, "Required parameter missing")
     throw new Meteor.Error(413, "Title too long") if options.title.length > 100
     throw new Meteor.Error(413, "Description too long") if options.description.length > 1000
     throw new Meteor.Error(403, "You must be logged in") unless @userId
@@ -54,16 +56,19 @@ Meteor.methods
       publicq: options.publicq
 
   updateTable: (options = {}) ->
-    check options, Match.ObjectIncluding
-      _id: NonEmptyString
-      owner: NonEmptyString
-      title: NonEmptyString
-      description: NonEmptyString
-      publicq: Boolean
-      variables: []
-      data: [Number]
-      variables: [NonEmptyString]
-      categories: [[NonEmptyString]]
+    try
+      check options, Match.ObjectIncluding
+        _id: NonEmptyString
+        owner: NonEmptyString
+        title: NonEmptyString
+        description: NonEmptyString
+        publicq: Boolean
+        variables: []
+        data: [Number]
+        variables: [NonEmptyString]
+        categories: [[NonEmptyString]]
+    catch e
+      throw new Meteor.Error(400, "Required parameter missing")
     throw new Meteor.Error(413, "Title too long") if options.title.length > 100
     throw new Meteor.Error(413, "Description too long") if options.description.length > 1000
     throw new Meteor.Error(403, "You must be logged in") unless @userId
