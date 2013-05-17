@@ -1,18 +1,21 @@
 Meteor.startup ->
   resetDatabase() unless Tables.find().count() > 0
 
-Meteor.publish "tables", ->
-  Tables.find $or: [
-    publicq: true
-  ,
-    owner: @userId
-  ]
-
 Meteor.publish "directory", ->
   Meteor.users.find {},
     fields:
       username: 1
       profile: 1
+
+Meteor.publish "tables", ->
+  if Roles.userIsInRole(@userId, ["admin"])
+    Tables.find()
+  else
+    Tables.find $or: [
+      publicq: true
+    ,
+      owner: @userId
+    ]
 
 # example data taken from
 # http://www.stat.cmu.edu/~gklein/discrete/OpeningExamples-2011.pdf
