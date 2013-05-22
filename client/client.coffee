@@ -95,9 +95,13 @@ Template.viewTable.df = ->
   t = Session.get 'table'
   t.df
 
-Template.viewTable.chisq = ->
+Template.viewTable.chi2 = ->
   t = Session.get 'table'
-  toFixed t.chisq, 2
+  toFixed t.chi2, 2
+
+Template.viewTable.gstat = ->
+  t = Session.get 'table'
+  toFixed t.gstat, 2
 
 Template.viewTable.pvalue = ->
   t = Session.get 'table'
@@ -105,23 +109,41 @@ Template.viewTable.pvalue = ->
 
 Template.viewTable.rowspan = ->
   t = Session.get 'table'
-  t.dimensions[0] + 1
+  t.dim[0] + 1
 
 Template.viewTable.colspan = ->
   t = Session.get 'table'
-  t.dimensions[1] + 1
+  t.dim[1] + 1
 
 Template.viewTable.eachrow = ->
   t = Session.get 'table'
-  {'row': e} for e in [0...t.dimensions[0]]
+  {'row': e} for e in [0...t.dim[0]]
 
 Template.viewTable.eachcol = ->
   t = Session.get 'table'
-  {'col': e} for e in [0...t.dimensions[1]]
+  {'col': e} for e in [0...t.dim[1]]
 
 Template.viewTable.cell = (r, c) ->
   t = Session.get 'table'
-  t.data[MixedBase.decode [r, c], t.dimensions ]
+  t.datmarg[MixedBase.decode [r, c], t.dimarg ]
+
+rgbToHex = (r, g, b) ->
+  "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
+
+frgbToHex = (r, g, b) ->
+  rgbToHex Math.floor(255*r), Math.floor(255*g), Math.floor(255*b)
+
+Template.viewTable.cellcolor = (r, c) ->
+  t = Session.get 'table'
+  mi = t.mi[MixedBase.decode [r, c], t.dim ]
+  mi *= 35
+  if mi >= 0
+    x = mi / (1 + mi)
+    frgbToHex 1 - x, 1 - x, 1
+  else
+    mi = - mi
+    x = mi / (1 + mi)
+    frgbToHex 1, 1 - x, 1 - x
 
 Template.viewTable.c0item = (r) ->
   t = Session.get 'table'
@@ -136,11 +158,11 @@ Template.viewTable.firstrow = (r) ->
 
 Template.viewTable.mrow = (c) ->
   t = Session.get 'table'
-  t.marginrow[c]
+  t.datmarg[MixedBase.decode [t.dim[0], c], t.dimarg]
 
 Template.viewTable.mcol = (r) ->
   t = Session.get 'table'
-  t.margincol[r]
+  t.datmarg[MixedBase.decode [r, t.dim[1]], t.dimarg]
 
 Template.viewTable.title = ->
   t = Session.get 'table'
@@ -160,7 +182,7 @@ Template.viewTable.v1 = ->
 
 Template.viewTable.grandtotal = ->
   t = Session.get 'table'
-  t.grandtotal
+  _.last t.datmarg
 
 Template.viewTable.events
   'click #viewclose': (event, template) ->
@@ -183,23 +205,23 @@ Template.viewTable.events
 # Template.editTable
 Template.editTable.rowspan = ->
   t = Session.get 'table'
-  t.dimensions[0] + 1
+  t.dim[0] + 1
 
 Template.editTable.colspan = ->
   t = Session.get 'table'
-  t.dimensions[1] + 1
+  t.dim[1] + 1
 
 Template.editTable.eachrow = ->
   t = Session.get 'table'
-  {'row': e} for e in [0...t.dimensions[0]]
+  {'row': e} for e in [0...t.dim[0]]
 
 Template.editTable.eachcol = ->
   t = Session.get 'table'
-  {'col': e} for e in [0...t.dimensions[1]]
+  {'col': e} for e in [0...t.dim[1]]
 
 Template.editTable.cell = (r, c) ->
   t = Session.get 'table'
-  t.data[MixedBase.decode [r, c], t.dimensions ]
+  t.data[MixedBase.decode [r, c], t.dim ]
 
 Template.editTable.c0item = (r) ->
   t = Session.get 'table'
@@ -214,11 +236,11 @@ Template.editTable.firstrow = (r) ->
 
 Template.editTable.mrow = (c) ->
   t = Session.get 'table'
-  t.marginrow[c]
+  t.datmarg[MixedBase.decode [t.dim[0], c], t.dimarg]
 
 Template.editTable.mcol = (r) ->
   t = Session.get 'table'
-  t.margincol[r]
+  t.datmarg[MixedBase.decode [r, t.dim[1]], t.dimarg]
 
 Template.editTable.title = ->
   t = Session.get 'table'
@@ -238,7 +260,7 @@ Template.editTable.v1 = ->
 
 Template.editTable.grandtotal = ->
   t = Session.get 'table'
-  t.grandtotal
+  _.last t.datmarg
 
 Template.editTable.publicq = ->
   t = Session.get 'table'
@@ -326,7 +348,7 @@ Template.editTable.events
     val = parseFloat(event.target.value, 10)
     t = Session.get 'table'
     rc = (event.target.name.replace /^cell/, '').split(',').map( (x) -> parseInt(x,10))
-    j = MixedBase.decode rc, t.dimensions
+    j = MixedBase.decode rc, t.dim
     console.log "updating cell[#{rc}=#{j}] = #{val}"
     t.data[j] = val
     ContingencyTable.updateMargins t
@@ -335,41 +357,41 @@ Template.editTable.events
   'click .deleterow': (event, template) ->
     t = Session.get 'table'
     j = parseInt (event.target.name.replace /^deleterow/, ''), 10
-    return unless 0 <= j < t.dimensions[0] and 2 < t.dimensions[0]
+    return unless 0 <= j < t.dim[0] and 2 < t.dim[0]
     console.log "deleting row #{j}"
-    p = ContingencyTable.identityPermutation t
+    p = ContingencyTable.identityCategoryPermutation t
     p[0].splice j, 1
-    ContingencyTable.permute t, p
+    ContingencyTable.permuteCategories t, p
     ContingencyTable.updateMargins t
     Session.set 'table', t
 
   'click .deletecol': (event, template) ->
     t = Session.get 'table'
     j = parseInt (event.target.name.replace /^deletecol/, ''), 10
-    return unless 0 <= j < t.dimensions[1] and 2 < t.dimensions[1]
+    return unless 0 <= j < t.dim[1] and 2 < t.dim[1]
     console.log "deleting column #{j}"
-    p = ContingencyTable.identityPermutation t
+    p = ContingencyTable.identityCategoryPermutation t
     p[1].splice j, 1
-    ContingencyTable.permute t, p
+    ContingencyTable.permuteCategories t, p
     ContingencyTable.updateMargins t
     Session.set 'table', t
 
   'click .insertrow': (event, template) ->
     t = Session.get 'table'
-    j = t.dimensions[0]
+    j = t.dim[0]
     console.log "inserting row #{j}"
-    p = ContingencyTable.identityPermutation t
+    p = ContingencyTable.identityCategoryPermutation t
     p[0].push j
-    ContingencyTable.permute t, p
+    ContingencyTable.permuteCategories t, p
     ContingencyTable.updateMargins t
     Session.set 'table', t
 
   'click .insertcol': (event, template) ->
     t = Session.get 'table'
-    j = t.dimensions[1]
+    j = t.dim[1]
     console.log "inserting col #{j}"
-    p = ContingencyTable.identityPermutation t
+    p = ContingencyTable.identityCategoryPermutation t
     p[1].push j
-    ContingencyTable.permute t, p
+    ContingencyTable.permuteCategories t, p
     ContingencyTable.updateMargins t
     Session.set 'table', t
