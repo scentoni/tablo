@@ -27,3 +27,6 @@ class @MixedBase
 
   @prod = (v) ->
     v.reduce( (a, b) -> a*b)
+
+  @sum = (v) ->
+    v.reduce( (a, b) -> a + b)
