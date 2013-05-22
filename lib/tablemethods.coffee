@@ -48,7 +48,7 @@ class @ContingencyTable
         t.gstat += ll
         t.mi[i] = ll * itotal
     t.gstat *= 2
-    t.pvalue = Chi2.pvalue t.df, t.chi2
+    t.pvalue = Chisq.pvalue t.df, t.chi2
     t
 
   @updateAll = (t) ->
