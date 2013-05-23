@@ -87,6 +87,47 @@ Template.main.showEditTable = ->
 ###########################################################
 # Template.viewTable
 
+Template.mosaic.rendered = () ->
+  self = this
+  self.node = self.find "svg"
+
+  return if self.handle
+  self.handle = Deps.autorun () ->
+    t = Session.get 'table'
+    tfunc = () ->
+      [f, m] = (e/2757 for e in [1573, 1184])
+      [fd, fi, fr, md, mi, mr] = (e/2757 for e in [762, 484, 327, 239, 468, 477])
+      [
+        {x:0, y:0, w:fd/f, h:f},
+        {x:fd/f, y:0, w:fi/f, h:f},
+        {x:(fd+fi)/f, y:0, w:fr/f, h:f},
+        {x:0, y:f, w:md/m, h:m},
+        {x:(md)/m, y:f, w:mi/m, h:m},
+        {x:(md+mi)/m, y:f, w:mr/m, h:m}
+      ]
+    testdata = tfunc()
+
+    height = width = 300
+    updateRectangles = (group) ->
+      group.attr("id", (datum) ->
+        datum._id
+      ).attr("x", (datum) ->
+        datum.x * width
+      ).attr("y", (datum) ->
+        datum.y * height
+      ).attr("width", (datum) ->
+        datum.w * width
+      ).attr("height", (datum) ->
+        datum.h * height
+      ).style("stroke", "red"
+      ).style("stroke-width", 2
+      )
+
+    rectangles = d3.select(self.node).select(".rectangles").selectAll("rect").data(testdata)
+    updateRectangles rectangles.enter().append("rect")
+    updateRectangles rectangles.transition().duration(250).ease("cubic-out")
+    rectangles.exit().transition().duration(250).attr("r", 0).remove()
+
 Template.viewTable.isModifiable = ->
   t = Session.get 'table'
   isModifiable t

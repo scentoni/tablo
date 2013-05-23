@@ -102,9 +102,21 @@
   {{/if}}
 </template>
 
+<template name="mosaic">
+  <div class="mosaic">
+    {{#constant}}
+    <svg width="300" height="300">
+      <g class="rectangles"></g>
+      <g class="labels"></g>
+    </svg>
+    {{/constant}}
+  </div>
+</template>
+
 <template name="viewTable">
   <h2>{{title}}</h2>
   <p>{{description}}</p>
+  {{> mosaic}}
   <table class="viewtable">
     <caption></caption>
     <thead>
