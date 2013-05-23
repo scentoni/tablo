@@ -27,10 +27,10 @@ class @MixedBase
 
   @plus = (a, b) -> a + b
   @times = (a, b) -> a*b
-  @sum = (v, ...args) -> _.reduce(v, @plus, args)
-  @product = (v, ...args) -> _.reduce(v, @times, args)
-  @sumList = (v, ...args) -> @reduceList(v, @plus, args)
-  @productList = (v, ...args) -> @reduceList(v, @times, args)
+  @sum = (v) -> _.reduce(v, @plus)
+  @product = (v) -> _.reduce(v, @times)
+  @sumList = (v) -> @reduceList(v, @plus)
+  @productList = (v) -> @reduceList(v, @times)
 
   @reduceList = (array, f, initial) ->
     if 2 < arguments.length

@@ -31,7 +31,7 @@ Template.page.events
     Session.set 'showViewTable', false
     Session.set 'showEditTable', false
     Session.set 'table', {}
-    Meteor.call 'resetDB'
+    Meteor.call 'resetDatabase'
 
 ###########################################################
 # Template.sidebar
@@ -94,24 +94,39 @@ Template.mosaic.rendered = () ->
   return if self.handle
   self.handle = Deps.autorun () ->
     t = Session.get 'table'
-    tfunc = () ->
-      [f, m] = (e/2757 for e in [1573, 1184])
-      [fd, fi, fr, md, mi, mr] = (e/2757 for e in [762, 484, 327, 239, 468, 477])
-      [
-        {x:0, y:0, w:fd/f, h:f},
-        {x:fd/f, y:0, w:fi/f, h:f},
-        {x:(fd+fi)/f, y:0, w:fr/f, h:f},
-        {x:0, y:f, w:md/m, h:m},
-        {x:(md)/m, y:f, w:mi/m, h:m},
-        {x:(md+mi)/m, y:f, w:mr/m, h:m}
-      ]
-    testdata = tfunc()
+    ContingencyTable.updateAll t
+    fmarg = (e/_.last(t.datmarg) for e in t.datmarg)
+    data = ({a: e/_.last(t.datmarg), mi:t.mi[i]} for e, i in t.data)
+    # mcol = (fmarg[MixedBase.decode [r, t.dim[1]], t.dimarg] for r in [0...t.dim[0]])
+    # console.log mcol
+    # mrow = (fmarg[MixedBase.decode [t.dim[0], c], t.dimarg] for c in [0...t.dim[1]])
+    # console.log mrow
+    y = 0
+    for r in [0...t.dim[0]]
+      x = 0
+      marg = fmarg[MixedBase.decode [r, t.dim[1]], t.dimarg]
+      for c in [0...t.dim[1]]
+        i = MixedBase.decode [r, c], t.dim
+        data[i].h = marg
+        data[i].w = data[i].a / data[i].h
+        data[i].x = x
+        data[i].y = y
+        x += data[i].w
+      y += data[i].h
+    # vsplit = 1
+    # for di, i in t.dim
+    #   console.log "split dimension #{i} into #{di} stripes #{['|', '-'][vsplit]}"
+    #   for j in [0...di]
+    #     console.log "stripe #{j} "
+    #   vsplit = 1 - vsplit
+    console.log data
 
     height = width = 300
+    colorscale = d3.scale.linear().domain([-1, 0, 1]).range(["red", "white", "blue"])
+    sigmoid = (x) ->
+      x / (1 + Math.abs(x))
     updateRectangles = (group) ->
-      group.attr("id", (datum) ->
-        datum._id
-      ).attr("x", (datum) ->
+      group.attr("x", (datum) ->
         datum.x * width
       ).attr("y", (datum) ->
         datum.y * height
@@ -119,11 +134,15 @@ Template.mosaic.rendered = () ->
         datum.w * width
       ).attr("height", (datum) ->
         datum.h * height
-      ).style("stroke", "red"
+      ).attr("foo", (datum) ->
+        colorscale(datum.mi)
+      ).style("fill", (datum) ->
+        colorscale(sigmoid(10*datum.mi))
+      ).style("stroke", "black"
       ).style("stroke-width", 2
       )
 
-    rectangles = d3.select(self.node).select(".rectangles").selectAll("rect").data(testdata)
+    rectangles = d3.select(self.node).select(".rectangles").selectAll("rect").data(data)
     updateRectangles rectangles.enter().append("rect")
     updateRectangles rectangles.transition().duration(250).ease("cubic-out")
     rectangles.exit().transition().duration(250).attr("r", 0).remove()
