@@ -19,14 +19,29 @@ class @MixedBase
   # Like APL's encode operator
   # encode(1500, [0, 20, 12]) is [6, 5, 0]
   @encode = (i, b, wraparound = false) ->
-    return null unless 0 <= i < @prod(b) or wraparound
+    return null unless 0 <= i < @product(b) or wraparound
     c = []
     for bk, k in b by -1
       [i, c[k]] = @divmodfloor i, b[k]
     c
 
-  @prod = (v) ->
-    v.reduce( (a, b) -> a*b)
+  @plus = (a, b) -> a + b
+  @times = (a, b) -> a*b
+  @sum = (v, ...args) -> _.reduce(v, @plus, args)
+  @product = (v, ...args) -> _.reduce(v, @times, args)
+  @sumList = (v, ...args) -> @reduceList(v, @plus, args)
+  @productList = (v, ...args) -> @reduceList(v, @times, args)
 
-  @sum = (v) ->
-    v.reduce( (a, b) -> a + b)
+  @reduceList = (array, f, initial) ->
+    if 2 < arguments.length
+      last = initial
+      i = 0
+    else
+      last = array[0]
+      i = 1
+    acc = [last]
+    while i < array.length
+      last = f last, array[i], i, array
+      acc.push last
+      ++i
+    acc

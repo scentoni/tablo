@@ -6,7 +6,7 @@ class @ContingencyTable
   @updateMargins = (t) ->
     t.dim = (c.length for c, i in t.categories)
     t.dimarg = (i + 1 for i in t.dim)
-    t.datmarg = (0 for i in [0...MixedBase.prod(t.dimarg)])
+    t.datmarg = (0 for i in [0...MixedBase.product(t.dimarg)])
     for v, i in t.data
       v = parseFloat v ? 0
       rc = MixedBase.encode i, t.dim
@@ -31,7 +31,7 @@ class @ContingencyTable
 # http://userwww.sfsu.edu/efc/classes/biol710/loglinear/Log%20Linear%20Models.htm
   @updateStatistics = (t) ->
     @updateMargins t
-    t.df = MixedBase.prod(t.dim) - MixedBase.sum(t.dim) + t.dim.length - 1
+    t.df = MixedBase.product(t.dim) - MixedBase.sum(t.dim) + t.dim.length - 1
     t.chi2 = 0
     t.gstat = 0
     t.mi = (0 for e in t.data)
@@ -58,7 +58,7 @@ class @ContingencyTable
     # structure of p is something like
     # parray = [ [1, 0], [0, 1, 3, 4]] # rows are exchanged, column 2 is removed
     newdim = (c.length for c in parray)
-    newdata = (0 for i in [0...MixedBase.prod(newdim)])
+    newdata = (0 for i in [0...MixedBase.product(newdim)])
     for d, i in newdata
       rc = MixedBase.encode i, newdim
       oldrc = (parray[j][c] for c, j in rc)
@@ -77,7 +77,7 @@ class @ContingencyTable
     newdim = (t.dim[c] for c in parray)
     newvariables = (t.variables[c] ? "" for c in parray)
     newcategories = (t.categories[c] ? "" for c in parray)
-    newdata = (0 for i in [0...MixedBase.prod(newdim)])
+    newdata = (0 for i in [0...MixedBase.product(newdim)])
     for d, i in t.data
       rc = MixedBase.encode i, t.dim
       newrc = (rc[c] for c in parray)
