@@ -78,8 +78,8 @@ Meteor.publish "tables", ->
     title: "eye and hair color"
     description: "eye and hair color by sex"
     variables: ["sex", "eye", "hair"]
-    categories: [["male", "female"], ["brown", "blue", "hazel", "green"], ["black", "brown", "red", "blond"]]
-    data: [32, 53, 10, 3, 11, 50, 10, 30, 10, 25, 7, 5, 3, 15, 7, 8, 36, 66, 16, 4, 9, 34, 7, 64, 5, 29, 7, 5, 2, 14, 7, 8]
+    categories: [["M", "F"], ["B", "G", "Z", "W"], ["K", "W", "R", "Y"]]
+    data: [11, 50, 10, 30, 3, 15, 7, 8, 10, 25, 7, 5, 32, 53, 10, 3, 9, 34, 7, 64, 2, 14, 7, 8, 5, 29, 7, 5, 36, 66, 16, 4]
     publicq: true
   ]
   for t in sampleTables
