@@ -63,6 +63,7 @@ Template.tableList.displayOwner = ->
 Template.tableList.events
   "click td": (event, template) ->
     t = Tables.findOne this._id
+    console.log "loading table #{this._id}"
     ContingencyTable.updateAll t
     Session.set 'table', t
     Session.set 'showViewTable', true
@@ -87,6 +88,72 @@ Template.main.showEditTable = ->
 ###########################################################
 # Template.viewTable
 
+# split |-
+layoutxy = (t) ->
+  fmarg = (e/_.last(t.datmarg) for e in t.datmarg)
+  data = ({a: e/_.last(t.datmarg), mi:t.mi[i]} for e, i in t.data)
+  x = 0
+  for c in [0...t.dim[1]]
+    y = 0
+    marg = fmarg[MixedBase.decode [t.dim[0], c], t.dimarg]
+    for r in [0...t.dim[0]]
+      i = MixedBase.decode [r, c], t.dim
+      data[i].w = marg
+      data[i].h = data[i].a / data[i].w
+      data[i].x = x
+      data[i].y = y
+      data[i].name = "#{t.categories[0][r]}|#{t.categories[1][c]}"
+      y += data[i].h
+    x += data[i].w
+  data
+
+# split -|
+layoutyx = (t) ->
+  fmarg = (e/_.last(t.datmarg) for e in t.datmarg)
+  data = ({a: e/_.last(t.datmarg), mi:t.mi[i]} for e, i in t.data)
+  y = 0
+  for r in [0...t.dim[0]]
+    x = 0
+    marg = fmarg[MixedBase.decode [r, t.dim[1]], t.dimarg]
+    for c in [0...t.dim[1]]
+      i = MixedBase.decode [r, c], t.dim
+      data[i].h = marg
+      data[i].w = data[i].a / data[i].h
+      data[i].x = x
+      data[i].y = y
+      x += data[i].w
+    y += data[i].h
+  data
+
+
+# split -|-
+# t.variables is ["sex", "eye", "hair"]
+# split x:hair, y:eye, x:sex
+layoutxyx = (t) ->
+  fmarg = (e/_.last(t.datmarg) for e in t.datmarg)
+  data = ({a: e/_.last(t.datmarg), mi:t.mi[i]} for e, i in t.data)
+  x = [0, 0]
+  for va in [0...t.dim[2]]
+    # console.log "#{t.variables[2]}=#{t.categories[2][va]}"
+    # j = MixedBase.decode (MixedBase.bitpick s, rc, t.dim), t.dimarg
+    w = fmarg[MixedBase.decode [-1, -1, va], t.dimarg]
+    y = [0]
+    for vb in [0...t.dim[1]]
+      h = fmarg[MixedBase.decode [-1, vb, va], t.dimarg]/w
+      x[1] = 0
+      for vc in [0...t.dim[0]]
+        i = MixedBase.decode [vc, vb, va], t.dim
+        data[i].h = h
+        data[i].w = data[i].a / h
+        data[i].x = MixedBase.sum x
+        data[i].y = MixedBase.sum y
+        data[i].name = "#{t.categories[0][vc]}#{t.categories[1][vb]}#{t.categories[2][va]}"
+        # data[i].name = "#{vc}|#{vb}|#{va}"
+        x[1] += data[i].w
+      y[0] += h
+    x[0] += w
+  data
+
 Template.mosaic.rendered = () ->
   self = this
   self.node = self.find "svg"
@@ -95,36 +162,35 @@ Template.mosaic.rendered = () ->
   self.handle = Deps.autorun () ->
     t = Session.get 'table'
     ContingencyTable.updateAll t
-    fmarg = (e/_.last(t.datmarg) for e in t.datmarg)
-    data = ({a: e/_.last(t.datmarg), mi:t.mi[i]} for e, i in t.data)
+    if t.dim.length is 2
+      data = layoutxy t
+    else if t.dim.length is 3
+      data = layoutxyx t
+
+    Session.set('data', data)
+    console.log data
     # mcol = (fmarg[MixedBase.decode [r, t.dim[1]], t.dimarg] for r in [0...t.dim[0]])
     # console.log mcol
     # mrow = (fmarg[MixedBase.decode [t.dim[0], c], t.dimarg] for c in [0...t.dim[1]])
     # console.log mrow
-    y = 0
-    for r in [0...t.dim[0]]
-      x = 0
-      marg = fmarg[MixedBase.decode [r, t.dim[1]], t.dimarg]
-      for c in [0...t.dim[1]]
-        i = MixedBase.decode [r, c], t.dim
-        data[i].h = marg
-        data[i].w = data[i].a / data[i].h
-        data[i].x = x
-        data[i].y = y
-        x += data[i].w
-      y += data[i].h
+
+    # example specification for splitting:
+    # [ [1,0,2], # order of splitting
+    #   [4,0,1], # x axis
+    #   [3,5],   # y axis
+    #   [6,7,2]] # z axis
+
     # vsplit = 1
     # for di, i in t.dim
     #   console.log "split dimension #{i} into #{di} stripes #{['|', '-'][vsplit]}"
     #   for j in [0...di]
     #     console.log "stripe #{j} "
     #   vsplit = 1 - vsplit
-    console.log data
 
     height = width = 300
     colorscale = d3.scale.linear().domain([-1, 0, 1]).range(["red", "white", "blue"])
-    sigmoid = (x) ->
-      x / (1 + Math.abs(x))
+    sigmoid = (x) -> x / (1 + Math.abs(x))
+
     updateRectangles = (group) ->
       group.attr("x", (datum) ->
         datum.x * width
@@ -146,6 +212,22 @@ Template.mosaic.rendered = () ->
     updateRectangles rectangles.enter().append("rect")
     updateRectangles rectangles.transition().duration(250).ease("cubic-out")
     rectangles.exit().transition().duration(250).attr("r", 0).remove()
+
+    updateLabels = (group) ->
+      group.attr("x", (datum) ->
+        (datum.x + 0.1*datum.w) * width
+      ).attr("y", (datum) ->
+        (datum.y + 0.5*datum.h) * height
+      ).text( (datum) ->
+        datum.name || ''
+      ).style("font-size", (datum) ->
+        "10px"
+      )
+
+    labels = d3.select(self.node).select(".labels").selectAll("text").data(data)
+    updateLabels labels.enter().append("text")
+    updateLabels labels.transition().duration(250).ease("cubic-out")
+    labels.exit().transition().duration(250).attr("r", 0).remove()
 
 Template.viewTable.isModifiable = ->
   t = Session.get 'table'
