@@ -11,14 +11,14 @@ class @ContingencyTable
       v = parseFloat v ? 0
       rc = MixedBase.encode i, t.dim
       for s in [0...(1 << t.dim.length)] # 1 << n = 2^n
-        j = MixedBase.decode (bitpick s, rc, t.dim), t.dimarg
+        j = MixedBase.decode (@bitpick s, rc, t.dim), t.dimarg
         t.datmarg[j] += v
     t
 
 # return an array whose kth element is
 # fs[k] if the kth bit of s is 0 or
 # ts[k] if the kth bit of s is 1
-  bitpick = (s, fs, ts) ->
+  @bitpick = (s, fs, ts) ->
     [fs[i], ts[i]][1 & (s >> i)] for tsi, i in ts
 
   square = (x) ->
@@ -40,7 +40,7 @@ class @ContingencyTable
     for di, i in t.data
       rc = MixedBase.encode i, t.dim
       for s, j in t.dim
-        ind = MixedBase.decode (bitpick 1 << j, t.dim, rc), t.dimarg
+        ind = MixedBase.decode (@bitpick 1 << j, t.dim, rc), t.dimarg
         t.expected[i] *= t.datmarg[ind]
       if t.expected[i]
         t.chi2 += square(t.data[i] - t.expected[i])/t.expected[i]
