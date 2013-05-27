@@ -91,20 +91,20 @@ Template.main.showEditTable = ->
 # split |-
 layoutxy = (t) ->
   fmarg = (e/_.last(t.datmarg) for e in t.datmarg)
-  data = ({a: e/_.last(t.datmarg), mi:t.mi[i]} for e, i in t.data)
+  data = ({a: e/_.last(t.datmarg), mi:t.mi[i], x:[0, 0], dx:[0, 0]} for e, i in t.data)
   x = 0
   for c in [0...t.dim[1]]
     y = 0
     marg = fmarg[MixedBase.decode [t.dim[0], c], t.dimarg]
     for r in [0...t.dim[0]]
       i = MixedBase.decode [r, c], t.dim
-      data[i].w = marg
-      data[i].h = data[i].a / data[i].w
-      data[i].x = x
-      data[i].y = y
+      data[i].dx[0] = marg
+      data[i].dx[1] = data[i].a / marg
+      data[i].x[0] = x
+      data[i].x[1] = y
       data[i].name = "#{t.categories[0][r]}|#{t.categories[1][c]}"
-      y += data[i].h
-    x += data[i].w
+      y += data[i].dx[1]
+    x += data[i].dx[0]
   data
 
 # split -|
@@ -125,34 +125,91 @@ layoutyx = (t) ->
     y += data[i].h
   data
 
-
 # split -|-
 # t.variables is ["sex", "eye", "hair"]
 # split x:hair, y:eye, x:sex
 layoutxyx = (t) ->
+  vars = [2, 1, 0]
+  disp = [0, 1, 0]
+  maxdisp = _.uniq(disp).length
   fmarg = (e/_.last(t.datmarg) for e in t.datmarg)
-  data = ({a: e/_.last(t.datmarg), mi:t.mi[i]} for e, i in t.data)
-  x = [0, 0]
+  data = ({a: e/_.last(t.datmarg), mi:t.mi[i], x:[0, 0], dx:[0, 0]} for e, i in t.data)
+  x = []
+  dx = []
+  x[0] = 0
   for va in [0...t.dim[2]]
     # console.log "#{t.variables[2]}=#{t.categories[2][va]}"
     # j = MixedBase.decode (MixedBase.bitpick s, rc, t.dim), t.dimarg
-    w = fmarg[MixedBase.decode [-1, -1, va], t.dimarg]
-    y = [0]
+    dx[0] = fmarg[MixedBase.decode [-1, -1, va], t.dimarg]
+    x[1] = 0
     for vb in [0...t.dim[1]]
-      h = fmarg[MixedBase.decode [-1, vb, va], t.dimarg]/w
-      x[1] = 0
+      dx[1] = fmarg[MixedBase.decode [-1, vb, va], t.dimarg]/dx[0]
+      x[2] = 0
       for vc in [0...t.dim[0]]
         i = MixedBase.decode [vc, vb, va], t.dim
-        data[i].h = h
-        data[i].w = data[i].a / h
-        data[i].x = MixedBase.sum x
-        data[i].y = MixedBase.sum y
+        dx[2] = data[i].a / dx[1]
+        for k in [0...maxdisp]
+          data[i].dx[k] = dx[disp.lastIndexOf(k)]
+        for dk, k in disp
+          data[i].x[dk] += x[k]
         data[i].name = "#{t.categories[0][vc]}#{t.categories[1][vb]}#{t.categories[2][va]}"
         # data[i].name = "#{vc}|#{vb}|#{va}"
-        x[1] += data[i].w
-      y[0] += h
-    x[0] += w
+        x[2] += dx[2]
+      x[1] += dx[1]
+    x[0] += dx[0]
   data
+
+# split |-|
+# t.variables is ["sex", "eye", "hair"]
+# split y:hair, x:eye, y:sex
+@layoutgeneral = (t) ->
+  recurselayout = (ox, odx, v, orc) ->
+    x = ox.slice(0) # my own private variables
+    dx = odx.slice(0) # since JS passes arrays
+    rc = orc.slice(0) # by reference
+    console.log "recurselayout v", v, ", rc", orc, ", x", ox, ", dx", odx
+    if v >= vars.length
+      i = MixedBase.decode rc, t.dim
+      data[i].x = x
+      data[i].dx = dx
+      data[i].name = rc
+      return
+    total = fmarg[MixedBase.decode rc, t.dimarg]
+    console.log "total", total
+    direction = disp[v]
+    variable = vars[v]
+    for c in [0...t.dim[variable]]
+      rc[variable] = c
+      part = fmarg[MixedBase.decode rc, t.dimarg]
+      console.log "part", part
+      fraction = part / total
+      dx[direction] = odx[direction]*fraction
+      recurselayout x, dx, v + 1, rc
+      x[direction] += dx[direction]
+
+  vars = [0...t.dim.length].reverse() # or some random perm
+  disp = ((k % 2) for k in [0...vars.length]) # or some random perm
+  console.log "vars", vars, ", disp", disp
+  maxdisp = _.uniq(disp).length
+  fmarg = (e/_.last(t.datmarg) for e in t.datmarg)
+  data = ({a: e/_.last(t.datmarg), mi:t.mi[i], x:[0, 0], dx:[0, 0]} for e, i in t.data)
+  recurselayout (0 for i in [0...maxdisp]),
+    (1 for i in [0...maxdisp]),
+    0,
+    (-1 for i in [0...t.dim.length])
+  data
+# #2 1 0
+# [-1, -1, -1]
+# [-1, -1, va]
+# [-1, vb, va]
+# [vc, vb, va]
+
+# #1 2 0
+# [-1, -1, -1]
+# [-1, vb, -1]
+# [-1, vb, va]
+# [vc, vb, va]
+
 
 Template.mosaic.rendered = () ->
   self = this
@@ -163,9 +220,9 @@ Template.mosaic.rendered = () ->
     t = Session.get 'table'
     ContingencyTable.updateAll t
     if t.dim.length is 2
-      data = layoutxy t
+      data = layoutgeneral t
     else if t.dim.length is 3
-      data = layoutxyx t
+      data = layoutgeneral t
 
     Session.set('data', data)
     console.log data
@@ -193,15 +250,13 @@ Template.mosaic.rendered = () ->
 
     updateRectangles = (group) ->
       group.attr("x", (datum) ->
-        datum.x * width
+        datum.x[0] * width
       ).attr("y", (datum) ->
-        datum.y * height
+        datum.x[1] * height
       ).attr("width", (datum) ->
-        datum.w * width
+        datum.dx[0] * width
       ).attr("height", (datum) ->
-        datum.h * height
-      ).attr("foo", (datum) ->
-        colorscale(datum.mi)
+        datum.dx[1] * height
       ).style("fill", (datum) ->
         colorscale(sigmoid(10*datum.mi))
       ).style("stroke", "black"
@@ -215,9 +270,9 @@ Template.mosaic.rendered = () ->
 
     updateLabels = (group) ->
       group.attr("x", (datum) ->
-        (datum.x + 0.1*datum.w) * width
+        (datum.x[0] + 0.1*datum.dx[0]) * width
       ).attr("y", (datum) ->
-        (datum.y + 0.5*datum.h) * height
+        (datum.x[1] + 0.5*datum.dx[1]) * height
       ).text( (datum) ->
         datum.name || ''
       ).style("font-size", (datum) ->
