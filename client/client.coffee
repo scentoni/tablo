@@ -167,49 +167,32 @@ layoutxyx = (t) ->
     x = ox.slice(0) # my own private variables
     dx = odx.slice(0) # since JS passes arrays
     rc = orc.slice(0) # by reference
-    console.log "recurselayout v", v, ", rc", orc, ", x", ox, ", dx", odx
-    if v >= vars.length
+    if v >= t.vars.length
       i = MixedBase.decode rc, t.dim
       data[i].x = x
       data[i].dx = dx
       data[i].name = rc
       return
-    total = fmarg[MixedBase.decode rc, t.dimarg]
-    console.log "total", total
-    direction = disp[v]
-    variable = vars[v]
+    itotal = 1.0 / fmarg[MixedBase.decode rc, t.dimarg]
+    direction = t.disp[v]
+    variable = t.vars[v]
     for c in [0...t.dim[variable]]
       rc[variable] = c
       part = fmarg[MixedBase.decode rc, t.dimarg]
-      console.log "part", part
-      fraction = part / total
-      dx[direction] = odx[direction]*fraction
+      dx[direction] = odx[direction]*part*itotal
       recurselayout x, dx, v + 1, rc
       x[direction] += dx[direction]
 
-  vars = [0...t.dim.length].reverse() # or some random perm
-  disp = ((k % 2) for k in [0...vars.length]) # or some random perm
-  console.log "vars", vars, ", disp", disp
-  maxdisp = _.uniq(disp).length
+  t.vars ?= [0...t.dim.length].reverse() # or some random perm
+  t.disp ?= ((k % 2) for k in [0...t.vars.length]) # or some random perm
+  maxdisp = _.uniq(t.disp).length
   fmarg = (e/_.last(t.datmarg) for e in t.datmarg)
   data = ({a: e/_.last(t.datmarg), mi:t.mi[i], x:[0, 0], dx:[0, 0]} for e, i in t.data)
-  recurselayout (0 for i in [0...maxdisp]),
-    (1 for i in [0...maxdisp]),
+  recurselayout (0.01 for i in [0...maxdisp]),
+    (0.98 for i in [0...maxdisp]),
     0,
     (-1 for i in [0...t.dim.length])
   data
-# #2 1 0
-# [-1, -1, -1]
-# [-1, -1, va]
-# [-1, vb, va]
-# [vc, vb, va]
-
-# #1 2 0
-# [-1, -1, -1]
-# [-1, vb, -1]
-# [-1, vb, va]
-# [vc, vb, va]
-
 
 Template.mosaic.rendered = () ->
   self = this
@@ -219,30 +202,8 @@ Template.mosaic.rendered = () ->
   self.handle = Deps.autorun () ->
     t = Session.get 'table'
     ContingencyTable.updateAll t
-    if t.dim.length is 2
-      data = layoutgeneral t
-    else if t.dim.length is 3
-      data = layoutgeneral t
-
-    Session.set('data', data)
-    console.log data
-    # mcol = (fmarg[MixedBase.decode [r, t.dim[1]], t.dimarg] for r in [0...t.dim[0]])
-    # console.log mcol
-    # mrow = (fmarg[MixedBase.decode [t.dim[0], c], t.dimarg] for c in [0...t.dim[1]])
-    # console.log mrow
-
-    # example specification for splitting:
-    # [ [1,0,2], # order of splitting
-    #   [4,0,1], # x axis
-    #   [3,5],   # y axis
-    #   [6,7,2]] # z axis
-
-    # vsplit = 1
-    # for di, i in t.dim
-    #   console.log "split dimension #{i} into #{di} stripes #{['|', '-'][vsplit]}"
-    #   for j in [0...di]
-    #     console.log "stripe #{j} "
-    #   vsplit = 1 - vsplit
+    data = layoutgeneral t
+    Session.set('table', t)
 
     height = width = 300
     colorscale = d3.scale.linear().domain([-1, 0, 1]).range(["red", "white", "blue"])
@@ -268,13 +229,25 @@ Template.mosaic.rendered = () ->
     updateRectangles rectangles.transition().duration(250).ease("cubic-out")
     rectangles.exit().transition().duration(250).attr("r", 0).remove()
 
+    # http://dabblet.com/gist/5231222
+    # http://stackoverflow.com/questions/13241475/how-do-i-include-newlines-in-labels-in-d3-charts
+
+    breaklines = (datum) ->
+      el = d3.select this
+      el.text ''
+      for wi, i in datum.name
+        tspan = el.append('tspan').text(t.categories[i][wi])
+        if i > 0
+          tspan.attr('x', (datum.x[0] + 0.5*datum.dx[0]) * width).attr('dy', '15px')
+
     updateLabels = (group) ->
       group.attr("x", (datum) ->
-        (datum.x[0] + 0.1*datum.dx[0]) * width
+        (datum.x[0] + 0.5*datum.dx[0]) * width
       ).attr("y", (datum) ->
         (datum.x[1] + 0.5*datum.dx[1]) * height
-      ).text( (datum) ->
-        datum.name || ''
+      ).each( breaklines
+      ).style("text-anchor", (datum) ->
+        "middle"
       ).style("font-size", (datum) ->
         "10px"
       )
