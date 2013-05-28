@@ -27,6 +27,13 @@ class @MixedBase
       [Math.floor(dend/dsor), (dend % dsor + dsor) % dsor] # floor
       # [Math.floor(a/b), a%b] # trunc
 
+  @rotateArray = (arr, count) ->
+    if count
+      arr = arr.slice(0)
+      [_, count] = @divmodfloor count, arr.length
+      arr.splice(0, 0, arr.splice(arr.length - count, count)...)
+      arr
+
   @plus = (a, b) -> a + b
   @times = (a, b) -> a*b
   @sum = (v) -> _.reduce(v, @plus)
