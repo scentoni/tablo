@@ -86,7 +86,7 @@ Template.main.showEditTable = ->
   Session.get 'showEditTable'
 
 ###########################################################
-# Template.viewTable
+# Template.mosaic
 
 # split |-
 layoutxy = (t) ->
@@ -256,6 +256,23 @@ Template.mosaic.rendered = () ->
     updateLabels labels.enter().append("text")
     updateLabels labels.transition().duration(250).ease("cubic-out")
     labels.exit().transition().duration(250).attr("r", 0).remove()
+
+
+
+Template.mosaic.events
+  "click .mosaic": (event, template) ->
+    t = Session.get 'table'
+    maxdisp = 2
+    if t.vars
+      t.disp = ((di + 1) % maxdisp for di in t.disp)
+      t.vars = MixedBase.rotateArray(t.vars, 1)
+    else
+      t.disp = ((k % maxdisp) for k in [0...t.vars.length]) # or some random perm
+      t.vars = [0...t.dim.length].reverse()
+    Session.set 'table', t
+
+###########################################################
+# Template.viewTable
 
 Template.viewTable.isModifiable = ->
   t = Session.get 'table'
