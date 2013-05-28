@@ -231,33 +231,32 @@ Template.mosaic.rendered = () ->
 
     # http://dabblet.com/gist/5231222
     # http://stackoverflow.com/questions/13241475/how-do-i-include-newlines-in-labels-in-d3-charts
-
+    fontsize = 12
     breaklines = (datum) ->
       el = d3.select this
       el.text ''
       for wi, i in datum.name
         tspan = el.append('tspan').text(t.categories[i][wi])
         if i > 0
-          tspan.attr('x', (datum.x[0] + 0.5*datum.dx[0]) * width).attr('dy', '15px')
+          tspan.attr('x', (datum.x[0] + 0.5*datum.dx[0]) * width).attr('dy', fontsize + 'px')
 
     updateLabels = (group) ->
       group.attr("x", (datum) ->
         (datum.x[0] + 0.5*datum.dx[0]) * width
       ).attr("y", (datum) ->
-        (datum.x[1] + 0.5*datum.dx[1]) * height
+        (datum.x[1] + 0.5*datum.dx[1] ) * height + fontsize - 2 - (datum.name.length) * fontsize * 0.5
       ).each( breaklines
       ).style("text-anchor", (datum) ->
         "middle"
       ).style("font-size", (datum) ->
-        "10px"
+        fontsize + 'px'
       )
 
     labels = d3.select(self.node).select(".labels").selectAll("text").data(data)
     updateLabels labels.enter().append("text")
     updateLabels labels.transition().duration(250).ease("cubic-out")
     labels.exit().transition().duration(250).attr("r", 0).remove()
-
-
+    Session.set 'data', data
 
 Template.mosaic.events
   "click .mosaic": (event, template) ->
