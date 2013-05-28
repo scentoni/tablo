@@ -264,8 +264,8 @@ Template.mosaic.events
     t = Session.get 'table'
     maxdisp = 2
     if t.vars
-      t.disp = ((di + 1) % maxdisp for di in t.disp)
-      t.vars = MixedBase.rotateArray(t.vars, 1)
+      t.disp = ((di + 1) % maxdisp for di, i in t.disp)
+      t.vars = MixedBase.nextPermutation(t.vars)
     else
       t.disp = ((k % maxdisp) for k in [0...t.vars.length]) # or some random perm
       t.vars = [0...t.dim.length].reverse()

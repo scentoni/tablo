@@ -54,3 +54,45 @@ class @MixedBase
       acc.push last
       ++i
     acc
+
+  @decodeFactorial = (v) ->
+    MixedBase.decode v, [v.length..1]
+
+  @encodeFactorial = (n) ->
+    f = 1
+    p = 1
+    b = [1]
+    while p <= n
+      f += 1
+      p *= f
+      b.push f
+    b.reverse()
+    MixedBase.encode n, b
+
+  @parityPermutation = (p, n=p.length) ->
+    parity = 0
+    for pi, i in p
+      for j in [i + 1...n]
+        parity += 1 if pi > p[j]
+    parity % 2
+
+  swap = (p, a, b) ->
+    [p[a], p[b]] = [p[b], p[a]]
+    p
+
+# https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm
+  @nextPermutation = (p) ->
+    x = []
+    for pi, i in p
+      x[pi] = i
+    y = []
+    for xi, i in x
+      if 0 is MixedBase.parityPermutation(_.filter(p, (x)->x < i))
+        y[i] = xi - 1
+      else
+        y[i] = xi + 1
+    for yi, i in y by -1
+      if p[yi] < i
+        swap p, x[i], y[i]
+        return p
+    p.sort()
