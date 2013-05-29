@@ -56,9 +56,10 @@ Template.tableList.displayTitle = ->
 
 Template.tableList.displayOwner = ->
   if this.owner
-    (Meteor.users.findOne this.owner).username
-  else
-    ''
+    owner = Meteor.users.findOne this.owner
+    if owner?.username
+      return owner.username
+  ''
 
 Template.tableList.events
   "click td": (event, template) ->
