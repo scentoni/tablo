@@ -74,6 +74,13 @@ Meteor.publish "tables", ->
     categories: [["1", "2", "3", "4", "5", "6"], ["1", "2", "3", "4", "5", "6"]]
     data: [547, 587, 500, 462, 621, 690, 609, 655, 497, 535, 651, 684, 514, 540, 468, 438, 587, 629, 462, 507, 414, 413, 509, 611, 551, 562, 499, 506, 658, 672, 563, 598, 519, 487, 609, 646]
     publicq: true
+  ,
+    title: "eye and hair color"
+    description: "eye and hair color by sex"
+    variables: ["sex", "eye", "hair"]
+    categories: [["M", "F"], ["B", "G", "Z", "W"], ["K", "W", "R", "Y"]]
+    data: [11, 50, 10, 30, 3, 15, 7, 8, 10, 25, 7, 5, 32, 53, 10, 3, 9, 34, 7, 64, 2, 14, 7, 8, 5, 29, 7, 5, 36, 66, 16, 4]
+    publicq: true
   ]
   for t in sampleTables
     t.owner = admin._id

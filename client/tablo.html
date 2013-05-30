@@ -19,6 +19,7 @@
 <template name="header">
   <div id="header">
     <h1><span class="logo">&#x229e;</span>Tablo<!-- <span class="logo">&#x1030E;</span> --></h1>
+    <p><em>Making contingency tables exciting!</em></p>
     {{#if currentUser}}
     Welcome, {{currentUser.username}}!
     {{else}}
@@ -56,19 +57,14 @@
 
 <template name="sidebar">
   <div id="sidebar">
-    <!-- <h2>Sidebar</h2> -->
-    <p>
-      <button type="button" id="reset">Reset</button>
-      <!-- Template.sidebar -->
-    </p>
-    {{> userList}}
     {{> tableList}}
+    {{> userList}}
   </div>
 </template>
 
 <template name="userList">
   <table id="userlist">
-    <caption>Users.</caption>
+    <caption>Users</caption>
     <tbody>
       {{#each userList}}
       <tr>
@@ -81,7 +77,7 @@
 
 <template name="tableList">
   <table id="tablelist">
-    <caption>Tables.</caption>
+    <caption>Tables</caption>
     <thead>
       <tr>
         <th>Tables:</th>
@@ -102,9 +98,21 @@
   {{/if}}
 </template>
 
+<template name="mosaic">
+  <div class="mosaic">
+    {{#constant}}
+    <svg width="300" height="300">
+      <g class="rectangles"></g>
+      <g class="labels"></g>
+    </svg>
+    {{/constant}}
+  </div>
+</template>
+
 <template name="viewTable">
   <h2>{{title}}</h2>
   <p>{{description}}</p>
+  {{> mosaic}}
   <table class="viewtable">
     <caption></caption>
     <thead>
@@ -147,7 +155,9 @@
   <p>
     <em>df</em>={{df}}
     &nbsp;
-    <em>&#x03C7;&#x00B2;</em>={{chisq}}
+    <em>&#x03C7;&#x00B2;</em>={{chi2}}
+    &nbsp;
+    <em>G</em>={{gstat}}
     &nbsp;
     <em>P</em>={{pvalue}}
   </p>
@@ -211,6 +221,15 @@
 
 <template name="footer">
   <div id="footer">
-    <p>Footer</p>
+    <p>Click on a table in the sidebar to select it. Click on a mosaic plot to rotate to the next permutation of variables. Take a look at the <a href="https://github.com/scentoni/tablo">source</a>. For more information, see these articles:</p>
+    <ul>
+      <li><a href="http://en.wikipedia.org/wiki/Contingency_table">contingency tables</a></li>
+      <li><a href="http://www.datavis.ca/papers/moshist.pdf">mosaic plots</a></li>
+      <li><a href="http://www.stat.cmu.edu/~gklein/discrete/OpeningExamples-2011.pdf">sample data</a></li>
+      <li><a href="http://en.wikipedia.org/wiki/Pearson%27s_chi-squared_test">chi-squared test</a></li>
+      <li><a href="http://en.wikipedia.org/wiki/Sensitivity_and_specificity">sensitivity and specificity</a></li>
+      <li><a href="http://www.vassarstats.net/abc.html">3-way tables</a></li>
+      <li><a href="http://en.wikipedia.org/wiki/G-test">G test</a></li>
+    </ul>
   </div>
 </template>
