@@ -1,9 +1,9 @@
 Accounts.ui.config
-  passwordSignupFields: "USERNAME_AND_EMAIL"
+  passwordSignupFields: 'USERNAME_AND_EMAIL'
 
-Meteor.subscribe "tables"
+Meteor.subscribe 'tables'
 
-Meteor.subscribe "directory"
+Meteor.subscribe 'directory'
 
 blankTable =
   title: ' '
@@ -14,7 +14,7 @@ blankTable =
   publicq: true
 
 Meteor.startup ->
-  console.log "Hello!"
+  console.log 'Hello!'
   Session.set 'showViewTable', false
   Session.set 'showEditTable', false
 
@@ -25,13 +25,6 @@ Template.page.showViewTable = ->
 
 Template.page.showEditTable = ->
   Session.get 'showEditTable'
-
-Template.page.events
-  'click #reset': ->
-    Session.set 'showViewTable', false
-    Session.set 'showEditTable', false
-    Session.set 'table', {}
-    Meteor.call 'resetDatabase'
 
 ###########################################################
 # Template.sidebar
@@ -62,7 +55,7 @@ Template.tableList.displayOwner = ->
   ''
 
 Template.tableList.events
-  "click td": (event, template) ->
+  'click td, tap td': (event, template) ->
     t = Tables.findOne this._id
     console.log "loading table #{this._id}"
     ContingencyTable.updateAll t
@@ -71,8 +64,8 @@ Template.tableList.events
     Session.set 'showEditTable', false
     console.log t
 
-  "click #addtable": (event, template) ->
-    console.log "Adding table"
+  'click #addtable, tap #addtable': (event, template) ->
+    console.log 'Adding table'
     ContingencyTable.updateMargins blankTable
     Session.set 'table', blankTable
     Session.set 'showViewTable', false
@@ -127,7 +120,7 @@ layoutyx = (t) ->
   data
 
 # split -|-
-# t.variables is ["sex", "eye", "hair"]
+# t.variables is ['sex', 'eye', 'hair']
 # split x:hair, y:eye, x:sex
 layoutxyx = (t) ->
   vars = [2, 1, 0]
@@ -161,7 +154,7 @@ layoutxyx = (t) ->
   data
 
 # split |-|
-# t.variables is ["sex", "eye", "hair"]
+# t.variables is ['sex', 'eye', 'hair']
 # split y:hair, x:eye, y:sex
 @layoutgeneral = (t) ->
   recurselayout = (ox, odx, v, orc) ->
@@ -197,7 +190,7 @@ layoutxyx = (t) ->
 
 Template.mosaic.rendered = () ->
   self = this
-  self.node = self.find "svg"
+  self.node = self.find 'svg'
 
   return if self.handle
   self.handle = Deps.autorun () ->
@@ -207,28 +200,28 @@ Template.mosaic.rendered = () ->
     Session.set('table', t)
 
     height = width = 300
-    colorscale = d3.scale.linear().domain([-1, 0, 1]).range(["red", "white", "blue"])
+    colorscale = d3.scale.linear().domain([-1, 0, 1]).range(['red', 'white', 'blue'])
     sigmoid = (x) -> x / (1 + Math.abs(x))
 
     updateRectangles = (group) ->
-      group.attr("x", (datum) ->
+      group.attr('x', (datum) ->
         datum.x[0] * width
-      ).attr("y", (datum) ->
+      ).attr('y', (datum) ->
         datum.x[1] * height
-      ).attr("width", (datum) ->
+      ).attr('width', (datum) ->
         datum.dx[0] * width
-      ).attr("height", (datum) ->
+      ).attr('height', (datum) ->
         datum.dx[1] * height
-      ).style("fill", (datum) ->
+      ).style('fill', (datum) ->
         colorscale(sigmoid(10*datum.mi))
-      ).style("stroke", "black"
-      ).style("stroke-width", 2
+      ).style('stroke', 'black'
+      ).style('stroke-width', 2
       )
 
-    rectangles = d3.select(self.node).select(".rectangles").selectAll("rect").data(data)
-    updateRectangles rectangles.enter().append("rect")
-    updateRectangles rectangles.transition().duration(250).ease("cubic-out")
-    rectangles.exit().transition().duration(250).attr("r", 0).remove()
+    rectangles = d3.select(self.node).select('.rectangles').selectAll('rect').data(data)
+    updateRectangles rectangles.enter().append('rect')
+    updateRectangles rectangles.transition().duration(400).ease('cubic-out')
+    rectangles.exit().transition().duration(400).attr('r', 0).remove()
 
     # http://dabblet.com/gist/5231222
     # http://stackoverflow.com/questions/13241475/how-do-i-include-newlines-in-labels-in-d3-charts
@@ -242,25 +235,25 @@ Template.mosaic.rendered = () ->
           tspan.attr('x', (datum.x[0] + 0.5*datum.dx[0]) * width).attr('dy', fontsize + 'px')
 
     updateLabels = (group) ->
-      group.attr("x", (datum) ->
+      group.attr('x', (datum) ->
         (datum.x[0] + 0.5*datum.dx[0]) * width
-      ).attr("y", (datum) ->
+      ).attr('y', (datum) ->
         (datum.x[1] + 0.5*datum.dx[1] ) * height + fontsize - 2 - (datum.name.length) * fontsize * 0.5
       ).each( breaklines
-      ).style("text-anchor", (datum) ->
-        "middle"
-      ).style("font-size", (datum) ->
+      ).style('text-anchor', (datum) ->
+        'middle'
+      ).style('font-size', (datum) ->
         fontsize + 'px'
       )
 
-    labels = d3.select(self.node).select(".labels").selectAll("text").data(data)
-    updateLabels labels.enter().append("text")
-    updateLabels labels.transition().duration(250).ease("cubic-out")
-    labels.exit().transition().duration(250).attr("r", 0).remove()
+    labels = d3.select(self.node).select('.labels').selectAll('text').data(data)
+    updateLabels labels.enter().append('text')
+    updateLabels labels.transition().duration(250).ease('cubic-out')
+    labels.exit().transition().duration(250).attr('r', 0).remove()
     Session.set 'data', data
 
 Template.mosaic.events
-  "click .mosaic": (event, template) ->
+  'click .mosaic, touchend .mosaic': (event, template) ->
     t = Session.get 'table'
     maxdisp = 2
     if t.vars
@@ -315,7 +308,7 @@ Template.viewTable.cell = (r, c) ->
   t.datmarg[MixedBase.decode [r, c], t.dimarg ]
 
 rgbToHex = (r, g, b) ->
-  "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
+  '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
 
 frgbToHex = (r, g, b) ->
   rgbToHex Math.floor(255*r), Math.floor(255*g), Math.floor(255*b)
@@ -372,16 +365,16 @@ Template.viewTable.grandtotal = ->
   _.last t.datmarg
 
 Template.viewTable.events
-  'click #viewclose': (event, template) ->
+  'click #viewclose, tap #viewclose': (event, template) ->
     Session.set 'showViewTable', false
     Session.set 'table', {}
 
-  'click #viewedit': (event, template) ->
+  'click #viewedit, tap #viewedit': (event, template) ->
     console.log 'Editing!'
     Session.set 'showViewTable', false
     Session.set 'showEditTable', true
 
-  'click #viewdelete': (event, template) ->
+  'click #viewdelete, tap #viewdelete': (event, template) ->
     t = Session.get 'table'
     console.log "attempting to delete table #{t._id}!"
     Tables.remove t._id, (error) ->
@@ -454,13 +447,13 @@ Template.editTable.publicq = ->
   t.publicq
 
 Template.editTable.events
-  'click #publicq': (event, template) ->
+  'click #publicq, tap #publicq': (event, template) ->
     t = Session.get 'table'
     t.publicq = event.target.checked
     console.log "public status is now #{t.publicq}"
     Session.set 'table', t
 
-  'click #editcancel': (event, template) ->
+  'click #editcancel, tap #editcancel': (event, template) ->
     t = Session.get 'table'
     if t._id
       t = Tables.findOne t._id
@@ -473,12 +466,12 @@ Template.editTable.events
       Session.set 'showEditTable', false
       Session.set 'showViewTable', false
 
-  'click #editsave': (event, template) ->
+  'click #editsave, tap #editsave': (event, template) ->
     t = Session.get 'table'
     if t._id
       ContingencyTable.updateAll t
       Session.set 'table', t
-      Meteor.call "updateTable", t, (error) ->
+      Meteor.call 'updateTable', t, (error) ->
         if error
           console.log 'ERROR: Could not update table'
           console.log t
@@ -490,7 +483,7 @@ Template.editTable.events
           Session.set 'showViewTable', true
     else
       # ContingencyTable.updateAll t
-      Meteor.call "createTable", t, (error, tableid) ->
+      Meteor.call 'createTable', t, (error, tableid) ->
         if error
           console.log 'ERROR: Could not insert table'
           console.log t
@@ -541,7 +534,7 @@ Template.editTable.events
     ContingencyTable.updateMargins t
     Session.set 'table', t
 
-  'click .deleterow': (event, template) ->
+  'click .deleterow, tap .deleterow': (event, template) ->
     t = Session.get 'table'
     j = parseInt (event.target.name.replace /^deleterow/, ''), 10
     return unless 0 <= j < t.dim[0] and 2 < t.dim[0]
@@ -552,7 +545,7 @@ Template.editTable.events
     ContingencyTable.updateMargins t
     Session.set 'table', t
 
-  'click .deletecol': (event, template) ->
+  'click .deletecol, tap .deletecol': (event, template) ->
     t = Session.get 'table'
     j = parseInt (event.target.name.replace /^deletecol/, ''), 10
     return unless 0 <= j < t.dim[1] and 2 < t.dim[1]
@@ -563,7 +556,7 @@ Template.editTable.events
     ContingencyTable.updateMargins t
     Session.set 'table', t
 
-  'click .insertrow': (event, template) ->
+  'click .insertrow, tap .insertrow': (event, template) ->
     t = Session.get 'table'
     j = t.dim[0]
     console.log "inserting row #{j}"
@@ -573,7 +566,7 @@ Template.editTable.events
     ContingencyTable.updateMargins t
     Session.set 'table', t
 
-  'click .insertcol': (event, template) ->
+  'click .insertcol, tap .insertcol': (event, template) ->
     t = Session.get 'table'
     j = t.dim[1]
     console.log "inserting col #{j}"

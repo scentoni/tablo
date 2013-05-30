@@ -57,19 +57,14 @@
 
 <template name="sidebar">
   <div id="sidebar">
-    <!-- <h2>Sidebar</h2> -->
-    <p>
-      <button type="button" id="reset">Reset</button>
-      <!-- Template.sidebar -->
-    </p>
-    {{> userList}}
     {{> tableList}}
+    {{> userList}}
   </div>
 </template>
 
 <template name="userList">
   <table id="userlist">
-    <caption>Users.</caption>
+    <caption>Users</caption>
     <tbody>
       {{#each userList}}
       <tr>
@@ -82,7 +77,7 @@
 
 <template name="tableList">
   <table id="tablelist">
-    <caption>Tables.</caption>
+    <caption>Tables</caption>
     <thead>
       <tr>
         <th>Tables:</th>
