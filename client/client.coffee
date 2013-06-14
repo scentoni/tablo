@@ -251,6 +251,10 @@ Template.mosaic.rendered = () ->
     updateLabels labels.transition().duration(250).ease('cubic-out')
     labels.exit().transition().duration(250).attr('r', 0).remove()
     Session.set 'data', data
+    svgnodes = document.getElementsByTagName('svg')
+    firstsvg = (new XMLSerializer).serializeToString(svgnodes[0]);
+    t.svg = firstsvg
+    Session.set('table', t)
 
 Template.mosaic.events
   'click .mosaic, touchend .mosaic': (event, template) ->
