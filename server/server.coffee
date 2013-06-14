@@ -17,6 +17,26 @@ Meteor.publish "tables", ->
       owner: @userId
     ]
 
+# http://stackoverflow.com/questions/13857866/imagemagick-in-meteorjs-with-the-help-of-meteor-router-and-fibers
+# http://d3export.cancan.cshl.edu/
+Meteor.Router.add
+  "/tables/:id.json": (id) ->
+    # Tables.findOne id
+    t = Tables.findOne id
+    JSON.stringify t, ['title', 'description', 'variables', 'categories', 'data'], '\t'
+
+# basic response
+  "/tables/:id.csv": (id) ->
+    t = Tables.findOne id
+    ContingencyTable.tocsv t
+
+# canonical response
+  "/tables/:id.tsv": (id) ->
+    response = this.response
+    response.writeHead(200, {'Content-Type': 'text/tsv'});
+    t = Tables.findOne id
+    response.write(ContingencyTable.tocsv t, '\t')
+
 # example data taken from
 # http://www.stat.cmu.edu/~gklein/discrete/OpeningExamples-2011.pdf
 @resetDatabase = ->
