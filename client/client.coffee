@@ -19,11 +19,11 @@ Meteor.startup ->
   Session.set 'showEditTable', false
 
 ###########################################################
-# Template.page
-Template.page.showViewTable = ->
+# Template.body
+Template.body.showViewTable = ->
   Session.get 'showViewTable'
 
-Template.page.showEditTable = ->
+Template.body.showEditTable = ->
   Session.get 'showEditTable'
 
 ###########################################################
