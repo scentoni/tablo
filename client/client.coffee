@@ -254,7 +254,7 @@ Template.mosaic.rendered = () ->
     svgnodes = document.getElementsByTagName('svg')
     firstsvg = (new XMLSerializer).serializeToString(svgnodes[0]);
     t.svg = firstsvg
-    Session.set('table', t)
+    Session.set 'table', t
 
 Template.mosaic.events
   'click .mosaic, touchend .mosaic': (event, template) ->
