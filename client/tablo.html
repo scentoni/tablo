@@ -78,158 +78,159 @@
 <template name="tableList">
   <table id="tablelist">
     <caption>Tables</caption>
-    <thead>
-      <tr>
-        <th>Tables:</th>
-      </tr>
-    </thead>
     <tbody>
       {{#each tableList}}
       <tr>
-        <td>{{displayOwner}}:{{displayTitle}}<br/><em><code>{{lookupTableID}}</code></em></td>
-      </tr>
-      {{else}}
-      <em>loading...</em>
-      {{/each}}
-    </tbody>
-  </table>
-  {{#if currentUser}}
-  <button id="addtable">Add</button>
-  {{/if}}
-</template>
-
-<template name="mosaic">
-  <div class="mosaic">
-    {{#constant}}
-    <svg width="300" height="300">
-      <g class="rectangles"></g>
-      <g class="labels"></g>
-    </svg>
-    {{/constant}}
-  </div>
-</template>
-
-<template name="viewTable">
-  <h2>{{title}}</h2>
-  <p>{{description}}</p>
-  {{> mosaic}}
-  <table class="viewtable">
-    <caption></caption>
-    <thead>
-      <tr>
-        <th></th>
-        <th></th>
-        <th colspan="{{colspan}}">{{v1}}</th>
-      </tr>
-      <tr>
-        <th></th>
-        <th></th>
-        {{#each eachcol}}
-        <th>{{c1item col}}</th>
+        <td>
+          <span id="{{thumb-lookupTableID}}">
+          <img src="data:image/svg+xml;base64,{{displayThumbnail}}" height="50" width="50">
+          </span>
+        </td>
+        <td>
+          {{displayOwner}}:{{displayTitle}}<br/><em><code>{{lookupTableID}}</code></em></td>
+        </tr>
+        {{else}}
+        <em>loading...</em>
         {{/each}}
-        <th class="margin-col">total</th>
-      </tr>
-    </thead>
-    <tbody>
-      {{#each eachrow}}
-      <tr>
-        {{#if firstrow row}}
-        <th rowspan="{{rowspan}}">{{v0}}</th>
-        {{/if}}
-        <th>{{c0item row}}</th>
-        {{#each eachcol}}
-        <td>{{cell ../row col}}</td>
-        {{/each}}
-        <td class="margin-col">{{mcol row}}</td>
-      </tr>
-      {{/each}}
-      <tr class="margin-row">
-        <th>total</th>
-        {{#each eachcol}}
-        <td>{{mrow col}}</td>
-        {{/each}}
-        <td class="margin-col">{{grandtotal}}</td>
-      </tr>
-    </tbody>
-  </table>
-  <p>
-    <em>df</em>={{df}}
-    &nbsp;
-    <em>&#x03C7;&#x00B2;</em>={{chi2}}
-    &nbsp;
-    <em>G</em>={{gstat}}
-    &nbsp;
-    <em>P</em>={{pvalue}}
-  </p>
-  <button type="button" id="viewclose">Close</button>
-  {{#if isModifiable}}
-  <button type="button" id="viewedit">Edit</button>
-  <button type="button" id="viewdelete">Delete</button>
-  {{/if}}
-</template>
+      </tbody>
+    </table>
+    {{#if currentUser}}
+    <button id="addtable">Add</button>
+    {{/if}}
+  </template>
 
-<!-- inspired by http://stackoverflow.com/questions/14059157/handlebars-js-each-loop-inside-another-each-loop-3 -->
-<template name="editTable">
-  <p>Editing</p>
-  <form>
-    <input class="title" name="title" type="text" value="{{title}}" />
-    <p><input class="description" name="description" type="text" value="{{description}}" /></p>
-    <table class="edittable">
-      <caption>editing</caption>
+  <template name="mosaic">
+    <div class="mosaic">
+      {{#constant}}
+      <svg width="300" height="300">
+        <g class="rectangles"></g>
+        <g class="labels"></g>
+      </svg>
+      {{/constant}}
+    </div>
+  </template>
+
+  <template name="viewTable">
+    <h2>{{title}}</h2>
+    <p>{{description}}</p>
+    {{> mosaic}}
+    <table class="viewtable">
+      <caption></caption>
       <thead>
         <tr>
           <th></th>
           <th></th>
-          <th colspan="{{colspan}}"><input class="variable" name="variable1" type="text" value="{{v1}}" /></th>
+          <th colspan="{{colspan}}">{{v1}}</th>
         </tr>
         <tr>
           <th></th>
           <th></th>
           {{#each eachcol}}
-          <th><input class="category" name="category1,{{col}}" type="text" value="{{c1item col}}" /></th>
+          <th>{{c1item col}}</th>
           {{/each}}
-          <th class="margin-col"><button type="button" class="insertcol" name="insertcol">+</button>total</th>
+          <th class="margin-col">total</th>
         </tr>
       </thead>
       <tbody>
         {{#each eachrow}}
         <tr>
           {{#if firstrow row}}
-          <th rowspan="{{rowspan}}"><input class="variable" name="variable0" type="text" value="{{v0}}" /></th>
+          <th rowspan="{{rowspan}}">{{v0}}</th>
           {{/if}}
-          <th><input class="category" name="category0,{{row}}" type="text" value="{{c0item row}}" /></th>
+          <th>{{c0item row}}</th>
           {{#each eachcol}}
-          <td><input class="cell" name="cell{{../row}},{{col}}" type="number" value="{{cell ../row col}}" /></td>
+          <td>{{cell ../row col}}</td>
           {{/each}}
-          <td class="margin-col">{{mcol row}}<button type="button" class="deleterow" name="deleterow{{row}}">X</button></td>
+          <td class="margin-col">{{mcol row}}</td>
         </tr>
         {{/each}}
         <tr class="margin-row">
-          <th><button type="button" class="insertrow" name="insertrow">+</button>total</th>
+          <th>total</th>
           {{#each eachcol}}
-          <td>{{mrow col}}<button type="button" class="deletecol" name="deletecol{{col}}">X</button></td>
+          <td>{{mrow col}}</td>
           {{/each}}
           <td class="margin-col">{{grandtotal}}</td>
         </tr>
       </tbody>
     </table>
-    Public:<input id="publicq" checked="{{publicq}}" type="checkbox" />
-    <button type="button" id="editsave">Save</button>
-    <button type="button" id="editcancel">Cancel</button>
-  </form>
-</template>
+    <p>
+      <em>df</em>={{df}}
+      &nbsp;
+      <em>&#x03C7;&#x00B2;</em>={{chi2}}
+      &nbsp;
+      <em>G</em>={{gstat}}
+      &nbsp;
+      <em>P</em>={{pvalue}}
+    </p>
+    <button type="button" id="viewclose">Close</button>
+    {{#if isModifiable}}
+    <button type="button" id="viewedit">Edit</button>
+    <button type="button" id="viewdelete">Delete</button>
+    {{/if}}
+  </template>
 
-<template name="footer">
-  <div id="footer">
-    <p>Click on a table in the sidebar to select it. Click on a mosaic plot to rotate to the next permutation of variables. Take a look at the <a href="https://github.com/scentoni/tablo">source</a>. For more information, see these articles:</p>
-    <ul>
-      <li><a href="http://en.wikipedia.org/wiki/Contingency_table">contingency tables</a></li>
-      <li><a href="http://www.datavis.ca/papers/moshist.pdf">mosaic plots</a></li>
-      <li><a href="http://www.stat.cmu.edu/~gklein/discrete/OpeningExamples-2011.pdf">sample data</a></li>
-      <li><a href="http://en.wikipedia.org/wiki/Pearson%27s_chi-squared_test">chi-squared test</a></li>
-      <li><a href="http://en.wikipedia.org/wiki/Sensitivity_and_specificity">sensitivity and specificity</a></li>
-      <li><a href="http://www.vassarstats.net/abc.html">3-way tables</a></li>
-      <li><a href="http://en.wikipedia.org/wiki/G-test">G test</a></li>
-    </ul>
-  </div>
-</template>
+  <!-- inspired by http://stackoverflow.com/questions/14059157/handlebars-js-each-loop-inside-another-each-loop-3 -->
+  <template name="editTable">
+    <p>Editing</p>
+    <form>
+      <input class="title" name="title" type="text" value="{{title}}" />
+      <p><input class="description" name="description" type="text" value="{{description}}" /></p>
+      <table class="edittable">
+        <caption>editing</caption>
+        <thead>
+          <tr>
+            <th></th>
+            <th></th>
+            <th colspan="{{colspan}}"><input class="variable" name="variable1" type="text" value="{{v1}}" /></th>
+          </tr>
+          <tr>
+            <th></th>
+            <th></th>
+            {{#each eachcol}}
+            <th><input class="category" name="category1,{{col}}" type="text" value="{{c1item col}}" /></th>
+            {{/each}}
+            <th class="margin-col"><button type="button" class="insertcol" name="insertcol">+</button>total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each eachrow}}
+          <tr>
+            {{#if firstrow row}}
+            <th rowspan="{{rowspan}}"><input class="variable" name="variable0" type="text" value="{{v0}}" /></th>
+            {{/if}}
+            <th><input class="category" name="category0,{{row}}" type="text" value="{{c0item row}}" /></th>
+            {{#each eachcol}}
+            <td><input class="cell" name="cell{{../row}},{{col}}" type="number" value="{{cell ../row col}}" /></td>
+            {{/each}}
+            <td class="margin-col">{{mcol row}}<button type="button" class="deleterow" name="deleterow{{row}}">X</button></td>
+          </tr>
+          {{/each}}
+          <tr class="margin-row">
+            <th><button type="button" class="insertrow" name="insertrow">+</button>total</th>
+            {{#each eachcol}}
+            <td>{{mrow col}}<button type="button" class="deletecol" name="deletecol{{col}}">X</button></td>
+            {{/each}}
+            <td class="margin-col">{{grandtotal}}</td>
+          </tr>
+        </tbody>
+      </table>
+      Public:<input id="publicq" checked="{{publicq}}" type="checkbox" />
+      <button type="button" id="editsave">Save</button>
+      <button type="button" id="editcancel">Cancel</button>
+    </form>
+  </template>
+
+  <template name="footer">
+    <div id="footer">
+      <p>Click on a table in the sidebar to select it. Click on a mosaic plot to rotate to the next permutation of variables. Take a look at the <a href="https://github.com/scentoni/tablo">source</a>. For more information, see these articles:</p>
+      <ul>
+        <li><a href="http://en.wikipedia.org/wiki/Contingency_table">contingency tables</a></li>
+        <li><a href="http://www.datavis.ca/papers/moshist.pdf">mosaic plots</a></li>
+        <li><a href="http://www.stat.cmu.edu/~gklein/discrete/OpeningExamples-2011.pdf">sample data</a></li>
+        <li><a href="http://en.wikipedia.org/wiki/Pearson%27s_chi-squared_test">chi-squared test</a></li>
+        <li><a href="http://en.wikipedia.org/wiki/Sensitivity_and_specificity">sensitivity and specificity</a></li>
+        <li><a href="http://www.vassarstats.net/abc.html">3-way tables</a></li>
+        <li><a href="http://en.wikipedia.org/wiki/G-test">G test</a></li>
+      </ul>
+    </div>
+  </template>

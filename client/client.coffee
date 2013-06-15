@@ -41,6 +41,15 @@ Template.userList.displayUserID = ->
 Template.tableList.tableList = ->
   Tables.find {}
 
+Template.tableList.displayThumbnail = ->
+  # document.body.appendChild(Meteor.render(this.svg))
+  # this.svg
+  # this.find()
+  # Meteor.render(this.svg)
+  if this.svg
+    # new Buffer(this.svg).toString('base64') # Node-specific
+    btoa(this.svg)
+
 Template.tableList.lookupTableID = ->
   lookupTableID this
 
@@ -201,6 +210,7 @@ Template.mosaic.rendered = () ->
     Session.set('table', t)
 
     height = width = 300
+    d3.select(self.node).attr('viewBox', "0 0 #{width} #{height}")
     colorscale = d3.scale.linear().domain([-1, 0, 1]).range(['red', 'white', 'blue'])
     sigmoid = (x) -> x / (1 + Math.abs(x))
 
@@ -252,11 +262,10 @@ Template.mosaic.rendered = () ->
     updateLabels labels.transition().duration(250).ease('cubic-out')
     labels.exit().transition().duration(250).attr('r', 0).remove()
     Session.set 'data', data
-    svgnodes = document.getElementsByTagName('svg')
-    firstsvg = (new XMLSerializer).serializeToString(svgnodes[0]);
-    t.svg = firstsvg
-    Session.set 'table', t
-    Meteor.call 'updateTable', t if isModifiable t
+    if isModifiable t
+      t.svg = (new XMLSerializer).serializeToString $('.mosaic svg')[0]
+      Session.set 'table', t
+      Meteor.call 'updateTable', t
 
 Template.mosaic.events
   'click .mosaic, touchend .mosaic': (event, template) ->
@@ -268,7 +277,12 @@ Template.mosaic.events
     else
       t.disp = ((k % maxdisp) for k in [0...t.vars.length]) # or some random perm
       t.vars = [0...t.dim.length].reverse()
-    Session.set 'table', t
+    if isModifiable t
+      t.svg = (new XMLSerializer).serializeToString $('.mosaic svg')[0]
+      Session.set 'table', t
+      Meteor.call 'updateTable', t
+    else
+      Session.set 'table', t
 
 ###########################################################
 # Template.viewTable
