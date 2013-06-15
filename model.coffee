@@ -15,7 +15,7 @@ Tables.allow
 
   update: (userId, table, fields, modifier) ->
     return false unless isModifiableByUserId(userId, table)
-    allowed = ['title', 'description', 'data', 'variables', 'categories', 'publicq']
+    allowed = ['title', 'description', 'data', 'variables', 'categories', 'publicq', 'datmarg', 'svg', 'disp', 'vars']
     return false if _.difference(fields, allowed).length # tried to write to forbidden field
     true
 
@@ -80,6 +80,7 @@ Meteor.methods
         title: options.title
         description: options.description
         publicq: options.publicq
+        svg: options.svg
 
   resetDB: ->
     resetDatabase()

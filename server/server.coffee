@@ -37,6 +37,11 @@ Meteor.Router.add
     t = Tables.findOne id
     response.write(ContingencyTable.tocsv t, '\t')
 
+# basic response
+  "/tables/:id.svg": (id) ->
+    t = Tables.findOne id
+    t.svg
+
 # example data taken from
 # http://www.stat.cmu.edu/~gklein/discrete/OpeningExamples-2011.pdf
 @resetDatabase = ->

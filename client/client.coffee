@@ -182,8 +182,9 @@ layoutxyx = (t) ->
   maxdisp = _.uniq(t.disp).length
   fmarg = (e/_.last(t.datmarg) for e in t.datmarg)
   data = ({a: e/_.last(t.datmarg), mi:t.mi[i], x:[0, 0], dx:[0, 0]} for e, i in t.data)
-  recurselayout (0.01 for i in [0...maxdisp]),
-    (0.98 for i in [0...maxdisp]),
+  eps = .02
+  recurselayout (eps for i in [0...maxdisp]),
+    (1-2*eps for i in [0...maxdisp]),
     0,
     (-1 for i in [0...t.dim.length])
   data
@@ -255,6 +256,7 @@ Template.mosaic.rendered = () ->
     firstsvg = (new XMLSerializer).serializeToString(svgnodes[0]);
     t.svg = firstsvg
     Session.set 'table', t
+    Meteor.call 'updateTable', t if isModifiable t
 
 Template.mosaic.events
   'click .mosaic, touchend .mosaic': (event, template) ->
