@@ -64,7 +64,7 @@ class @ContingencyTable
       oldrc = (parray[j][c] for c, j in rc)
       j = MixedBase.decode oldrc, t.dim
       newdata[i] = t.data[j] ? 0
-    newcategories = (((t.categories[i][c] ? "") for c, j in p) for p, i in parray)
+    newcategories = (((t.categories[i][c] ? '') for c, j in p) for p, i in parray)
     t.data = newdata
     t.dim = newdim
     t.categories = newcategories
@@ -75,8 +75,8 @@ class @ContingencyTable
 
   @permuteVariables = (t, parray) ->
     newdim = (t.dim[c] for c in parray)
-    newvariables = (t.variables[c] ? "" for c in parray)
-    newcategories = (t.categories[c] ? "" for c in parray)
+    newvariables = (t.variables[c] ? '' for c in parray)
+    newcategories = (t.categories[c] ? '' for c in parray)
     newdata = (0 for i in [0...MixedBase.product(newdim)])
     for d, i in t.data
       rc = MixedBase.encode i, t.dim
@@ -89,12 +89,10 @@ class @ContingencyTable
     t.variables = newvariables
     t
 
-  @stringdata = (t) ->
-    s = t.title + "\n"
-    s += t.variables.join("\t") + "\tcount\n"
+  @tocsv = (t, fs=',') ->
+    s = t.title + '\n'
+    s += t.variables.join(fs) + fs + 'count\n'
     for d, i in t.data
       rc = MixedBase.encode i, t.dim
-      s += (t.categories[j][c] for c, j in rc).join("\t") + "\t" + d + "\n"
-    console.log s
+      s += (t.categories[j][c] for c, j in rc).join(fs) + fs + d + '\n'
     s
-

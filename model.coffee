@@ -7,7 +7,7 @@
 #   publicq: Boolean
 #   viewshares, editshares: Array of user id's that are shared
 
-@Tables = new Meteor.Collection("tables")
+@Tables = new Meteor.Collection('tables')
 
 Tables.allow
   insert: (userId, table) ->
@@ -15,7 +15,7 @@ Tables.allow
 
   update: (userId, table, fields, modifier) ->
     return false unless isModifiableByUserId(userId, table)
-    allowed = ["title", "description", "data", "variables", "categories", "publicq"]
+    allowed = ['title', 'description', 'data', 'variables', 'categories', 'publicq', 'datmarg', 'svg', 'disp', 'vars']
     return false if _.difference(fields, allowed).length # tried to write to forbidden field
     true
 
@@ -42,10 +42,10 @@ Meteor.methods
         variables: [NonEmptyString]
         categories: [[NonEmptyString]]
     catch e
-      throw new Meteor.Error(400, "Required parameter missing")
-    throw new Meteor.Error(413, "Title too long") if options.title.length > 100
-    throw new Meteor.Error(413, "Description too long") if options.description.length > 1000
-    throw new Meteor.Error(403, "You must be logged in") unless @userId
+      throw new Meteor.Error(400, 'Required parameter missing')
+    throw new Meteor.Error(413, 'Title too long') if options.title.length > 100
+    throw new Meteor.Error(413, 'Description too long') if options.description.length > 1000
+    throw new Meteor.Error(403, 'You must be logged in') unless @userId
     Tables.insert
       owner: @userId
       data: options.data
@@ -68,10 +68,10 @@ Meteor.methods
         variables: [NonEmptyString]
         categories: [[NonEmptyString]]
     catch e
-      throw new Meteor.Error(400, "Required parameter missing")
-    throw new Meteor.Error(413, "Title too long") if options.title.length > 100
-    throw new Meteor.Error(413, "Description too long") if options.description.length > 1000
-    throw new Meteor.Error(403, "You must be logged in") unless @userId
+      throw new Meteor.Error(400, 'Required parameter missing')
+    throw new Meteor.Error(413, 'Title too long') if options.title.length > 100
+    throw new Meteor.Error(413, 'Description too long') if options.description.length > 1000
+    throw new Meteor.Error(403, 'You must be logged in') unless @userId
     Tables.update options._id,
       $set:
         data: options.data
@@ -80,6 +80,7 @@ Meteor.methods
         title: options.title
         description: options.description
         publicq: options.publicq
+        svg: options.svg
 
   resetDB: ->
     resetDatabase()
@@ -91,7 +92,7 @@ Meteor.methods
   table._id
 
 @isModifiableByUserId = (userId, table) ->
-  userId and (table.owner is userId or Roles.userIsInRole(userId, ["admin"]))
+  userId and (table.owner is userId or Roles.userIsInRole(userId, ['admin']))
 
 @isModifiable = (table) ->
   isModifiableByUserId Meteor.user()?._id, table

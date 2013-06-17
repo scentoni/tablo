@@ -19,11 +19,11 @@ Meteor.startup ->
   Session.set 'showEditTable', false
 
 ###########################################################
-# Template.page
-Template.page.showViewTable = ->
+# Template.body
+Template.body.showViewTable = ->
   Session.get 'showViewTable'
 
-Template.page.showEditTable = ->
+Template.body.showEditTable = ->
   Session.get 'showEditTable'
 
 ###########################################################
@@ -40,6 +40,15 @@ Template.userList.displayUserID = ->
 
 Template.tableList.tableList = ->
   Tables.find {}
+
+Template.tableList.displayThumbnail = ->
+  # document.body.appendChild(Meteor.render(this.svg))
+  # this.svg
+  # this.find()
+  # Meteor.render(this.svg)
+  if this.svg
+    # new Buffer(this.svg).toString('base64') # Node-specific
+    btoa(this.svg)
 
 Template.tableList.lookupTableID = ->
   lookupTableID this
@@ -182,8 +191,9 @@ layoutxyx = (t) ->
   maxdisp = _.uniq(t.disp).length
   fmarg = (e/_.last(t.datmarg) for e in t.datmarg)
   data = ({a: e/_.last(t.datmarg), mi:t.mi[i], x:[0, 0], dx:[0, 0]} for e, i in t.data)
-  recurselayout (0.01 for i in [0...maxdisp]),
-    (0.98 for i in [0...maxdisp]),
+  eps = .02
+  recurselayout (eps for i in [0...maxdisp]),
+    (1-2*eps for i in [0...maxdisp]),
     0,
     (-1 for i in [0...t.dim.length])
   data
@@ -200,6 +210,7 @@ Template.mosaic.rendered = () ->
     Session.set('table', t)
 
     height = width = 300
+    d3.select(self.node).attr('viewBox', "0 0 #{width} #{height}")
     colorscale = d3.scale.linear().domain([-1, 0, 1]).range(['red', 'white', 'blue'])
     sigmoid = (x) -> x / (1 + Math.abs(x))
 
@@ -251,6 +262,10 @@ Template.mosaic.rendered = () ->
     updateLabels labels.transition().duration(250).ease('cubic-out')
     labels.exit().transition().duration(250).attr('r', 0).remove()
     Session.set 'data', data
+    if isModifiable t
+      t.svg = (new XMLSerializer).serializeToString $('.mosaic svg')[0]
+      Session.set 'table', t
+      Meteor.call 'updateTable', t
 
 Template.mosaic.events
   'click .mosaic, touchend .mosaic': (event, template) ->
@@ -262,10 +277,30 @@ Template.mosaic.events
     else
       t.disp = ((k % maxdisp) for k in [0...t.vars.length]) # or some random perm
       t.vars = [0...t.dim.length].reverse()
-    Session.set 'table', t
+    if isModifiable t
+      t.svg = (new XMLSerializer).serializeToString $('.mosaic svg')[0]
+      Session.set 'table', t
+      Meteor.call 'updateTable', t
+    else
+      Session.set 'table', t
 
 ###########################################################
 # Template.viewTable
+
+# hack in case we are running on a nonstandard port, like localhost:3000
+Template.viewTable.root = ->
+  if location.host is location.hostname
+    ''
+  else
+    "#{location.protocol}//#{location.host}"
+
+Template.viewTable.id = ->
+  t = Session.get 'table'
+  t._id
+
+Template.viewTable.table2d = ->
+  t = Session.get 'table'
+  t.variables.length is 2
 
 Template.viewTable.isModifiable = ->
   t = Session.get 'table'
