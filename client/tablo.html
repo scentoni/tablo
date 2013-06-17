@@ -68,7 +68,8 @@
     <tbody>
       {{#each userList}}
       <tr>
-        <td>{{displayUsername}}<br/><em><code>{{displayUserID}}</code></em></td>
+        <td>{{displayUsername}}<br/>
+        <em><code>{{displayUserID}}</code></em></td>
       </tr>
       {{/each}}
     </tbody>
@@ -87,7 +88,9 @@
           </span>
         </td>
         <td>
-          {{displayOwner}}:{{displayTitle}}<br/><em><code>{{lookupTableID}}</code></em></td>
+          {{displayOwner}}<br/>
+          {{displayTitle}}<br/>
+          <em><code>{{lookupTableID}}</code></em></td>
         </tr>
         {{else}}
         <em>loading...</em>
@@ -164,8 +167,12 @@
       &nbsp;
       <em>P</em>={{pvalue}}
     </p>
+    {{#if isPrivate}}
+    Private!
+    {{/if}}
     <button type="button" id="viewclose">Close</button>
     {{#if isModifiable}}
+    <button type="button" id="viewsave">Save View</button>
     <button type="button" id="viewedit">Edit</button>
     <button type="button" id="viewdelete">Delete</button>
     {{/if}}

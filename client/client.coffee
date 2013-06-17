@@ -262,10 +262,6 @@ Template.mosaic.rendered = () ->
     updateLabels labels.transition().duration(250).ease('cubic-out')
     labels.exit().transition().duration(250).attr('r', 0).remove()
     Session.set 'data', data
-    if isModifiable t
-      t.svg = (new XMLSerializer).serializeToString $('.mosaic svg')[0]
-      Session.set 'table', t
-      Meteor.call 'updateTable', t
 
 Template.mosaic.events
   'click .mosaic, touchend .mosaic': (event, template) ->
@@ -277,12 +273,7 @@ Template.mosaic.events
     else
       t.disp = ((k % maxdisp) for k in [0...t.vars.length]) # or some random perm
       t.vars = [0...t.dim.length].reverse()
-    if isModifiable t
-      t.svg = (new XMLSerializer).serializeToString $('.mosaic svg')[0]
-      Session.set 'table', t
-      Meteor.call 'updateTable', t
-    else
-      Session.set 'table', t
+    Session.set 'table', t
 
 ###########################################################
 # Template.viewTable
@@ -297,6 +288,10 @@ Template.viewTable.root = ->
 Template.viewTable.id = ->
   t = Session.get 'table'
   t._id
+
+Template.viewTable.isPrivate = ->
+  t = Session.get 'table'
+  not t.publicq
 
 Template.viewTable.table2d = ->
   t = Session.get 'table'
@@ -403,6 +398,13 @@ Template.viewTable.events
   'click #viewclose, tap #viewclose': (event, template) ->
     Session.set 'showViewTable', false
     Session.set 'table', {}
+
+  'click #viewsave, tap #viewsave': (event, template) ->
+    console.log 'Saving view!'
+    t = Session.get 'table'
+    t.svg = (new XMLSerializer).serializeToString $('.mosaic svg')[0]
+    Session.set 'table', t
+    Meteor.call 'updateTable', t
 
   'click #viewedit, tap #viewedit': (event, template) ->
     console.log 'Editing!'
