@@ -287,6 +287,21 @@ Template.mosaic.events
 ###########################################################
 # Template.viewTable
 
+# hack in case we are running on a nonstandard port, like localhost:3000
+Template.viewTable.root = ->
+  if location.host is location.hostname
+    ''
+  else
+    "#{location.protocol}//#{location.host}"
+
+Template.viewTable.id = ->
+  t = Session.get 'table'
+  t._id
+
+Template.viewTable.table2d = ->
+  t = Session.get 'table'
+  t.variables.length is 2
+
 Template.viewTable.isModifiable = ->
   t = Session.get 'table'
   isModifiable t
