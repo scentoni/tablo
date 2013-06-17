@@ -83,7 +83,7 @@
       <tr>
         <td>
           <span id="{{thumb-lookupTableID}}">
-          <img src="data:image/svg+xml;base64,{{displayThumbnail}}" height="50" width="50">
+            <img src="data:image/svg+xml;base64,{{displayThumbnail}}" height="50" width="50">
           </span>
         </td>
         <td>
@@ -154,6 +154,7 @@
         </tr>
       </tbody>
     </table>
+    {{/if}}
     <p>
       <em>df</em>={{df}}
       &nbsp;
@@ -168,6 +169,13 @@
     <button type="button" id="viewedit">Edit</button>
     <button type="button" id="viewdelete">Delete</button>
     {{/if}}
+    <p>If your table is public, you can share the following links:</p>
+    <ul>
+      <li> <a href="{{root}}/tables/{{id}}.svg">svg</a> image </li>
+      <li> <a href="{{root}}/tables/{{id}}.csv">csv</a> for a spreadsheet program </li>
+      <li> <a href="{{root}}/tables/{{id}}.tsv">tsv</a> for a spreadsheet program </li>
+      <li> <a href="{{root}}/tables/{{id}}.json">json</a> </li>
+    </ul>
   </template>
 
   <!-- inspired by http://stackoverflow.com/questions/14059157/handlebars-js-each-loop-inside-another-each-loop-3 -->
