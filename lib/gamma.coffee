@@ -1,8 +1,46 @@
 EPS = 1.0e-14
 ASWITCH = 100
 FPMIN = Number.MIN_VALUE
+FACMAX = 50
+FACDAT = do ->
+  res = [1]
+  for i in [1..FACMAX]
+    res[i] = i * res[i - 1]
+  res
+
+LNFACDAT = (Math.log(di) for di, i in FACDAT)
 
 class @Gamma
+
+  @bico: (n, k) ->
+    if n <= FACMAX
+      @fac(n)/(@fac(k)*@fac(n - k))
+    else
+      Math.exp(@lnfac(n) - @lnfac(k) - @lnfac(n - k))
+
+  @lnbico: (n, k) ->
+    if n <= FACMAX
+      Math.log(@fac(n)/(@fac(k)*@fac(n - k)))
+    else
+      @lnfac(n) - @lnfac(k) - @lnfac(n - k)
+
+  @fac: (x) ->
+    if x < 0
+      0
+    else if x <= FACMAX
+      FACDAT[x]
+    else
+      Math.exp(@lngamma x + 1.0)
+
+  @lnfac: (x) ->
+    if x < 0
+      0
+    else if x <= FACMAX
+      LNFACDAT[x]
+    else
+      @lngamma x + 1.0
+
+  # Returns the logarithm of the gamma function
   @lngamma: (xx) ->
     cof = [57.1562356658629235, -59.5979603554754912, 14.1360979747417471, -0.491913816097620199, .339946499848118887e-4, .465236289270485756e-4, -.983744753048795646e-4, .158088703224912494e-3, -.210264441724104883e-3, .217439618115212643e-3, -.164318106536763890e-3, .844182239838527433e-4, -.261908384015814087e-4, .368991826595316234e-5]
     throw "bad arg in lngamma"  if xx <= 0
