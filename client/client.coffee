@@ -2,7 +2,6 @@ Accounts.ui.config
   passwordSignupFields: 'USERNAME_AND_EMAIL'
 
 Meteor.subscribe 'tables'
-
 Meteor.subscribe 'directory'
 
 blankTable =
@@ -12,6 +11,15 @@ blankTable =
   categories: [['', ''], ['', '']]
   data: [0, 0, 0, 0]
   publicq: true
+
+Meteor.Router.add
+  "/news": "news"
+  "/about": ->
+    if Session.get("aboutUs")
+      "aboutUs"
+    else
+      "aboutThem"
+  "*": "not_found"
 
 Meteor.startup ->
   console.log 'Hello!'
@@ -25,6 +33,13 @@ Template.body.showViewTable = ->
 
 Template.body.showEditTable = ->
   Session.get 'showEditTable'
+
+###########################################################
+# Template.nav
+
+Template.nav.showTextNav = ->
+  t = Session.get 'table'
+  t?.title?
 
 ###########################################################
 # Template.sidebar
@@ -52,6 +67,12 @@ Template.tableList.displayThumbnail = ->
 
 Template.tableList.lookupTableID = ->
   lookupTableID this
+
+Template.tableList.dimensions = ->
+  if this?.dim?.length > 0
+    this.dim.join '×'
+  else
+    ''
 
 Template.tableList.displayTitle = ->
   this.title
@@ -280,10 +301,7 @@ Template.mosaic.events
 
 # hack in case we are running on a nonstandard port, like localhost:3000
 Template.viewTable.root = ->
-  if location.host is location.hostname
-    ''
-  else
-    "#{location.protocol}//#{location.host}"
+  "#{location.protocol}//#{location.host}"
 
 Template.viewTable.id = ->
   t = Session.get 'table'
@@ -312,6 +330,10 @@ Template.viewTable.chi2 = ->
 Template.viewTable.gstat = ->
   t = Session.get 'table'
   toFixed t.gstat, 2
+
+Template.viewTable.tabular = ->
+  t = Session.get 'table'
+  ContingencyTable.tocsv(t, '\t')
 
 Template.viewTable.pvalue = ->
   t = Session.get 'table'
@@ -479,14 +501,14 @@ Template.editTable.grandtotal = ->
   t = Session.get 'table'
   _.last t.datmarg
 
-Template.editTable.publicq = ->
+Template.editTable.privateq = ->
   t = Session.get 'table'
-  t.publicq
+  not t.publicq
 
 Template.editTable.events
-  'click #publicq, tap #publicq': (event, template) ->
+  'click #privateq, tap #privateq': (event, template) ->
     t = Session.get 'table'
-    t.publicq = event.target.checked
+    t.publicq = not event.target.checked
     console.log "public status is now #{t.publicq}"
     Session.set 'table', t
 

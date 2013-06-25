@@ -1,5 +1,7 @@
 <head>
   <title>Tablo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
 </head>
 
 <body>
@@ -7,246 +9,270 @@
 </body>
 
 <template name="body">
-  <div id="body">
-    {{> header}}
+  <div id="body" class="container-fluid">
     {{> nav}}
-    {{> main}}
-    {{> sidebar}}
+    <div class="row-fluid">
+      {{> main}}
+      {{> sidebar}}
+    </div>
     {{> footer}}
   </div>
 </template>
 
-<template name="header">
-  <div id="header">
-    <h1><span class="logo">&#x229e;</span>Tablo<!-- <span class="logo">&#x1030E;</span> --></h1>
-    <p><em>Making contingency tables exciting!</em></p>
-    {{#if currentUser}}
-    Welcome, {{currentUser.username}}!
-    {{else}}
-    Please sign in to create your own tables
-    {{/if}}
-    <div style="float: right">
-      {{loginButtons align="right"}}
+<template name="nav">
+  <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+      <a class="brand" href="#">&nbsp;&#x229e;Tablo</a>
+      <ul class="nav">
+        <!-- <li><a href="#twobytwo">2&times;2</a></li> -->
+        <!-- <li><a href="#rbyc">r&times;c</a></li> -->
+        <!-- <li><a href="#mosaic">mosaic</a></li> -->
+        {{#if showTextNav}}<li><a href="#text">text</a></li>{{/if}}
+      </ul>
+      <ul class="nav pull-right">
+        <li><a href="#">{{loginButtons}}</a></li>
+      </ul>
     </div>
   </div>
 </template>
 
-<template name="nav">
-  <div id="nav">
-    <ul>
-      <!-- <li><a href="/">Option 1</a></li> -->
-      <!-- <li><a href="/">Option 2</a></li> -->
-      <!-- <li><a href="/">Option 3</a></li> -->
-      <!-- <li><a href="/">Option 4</a></li> -->
-      <!-- <li><a href="/">Option 5</a></li> -->
-    </ul>
+<template name="main">
+  <article id="main" class="span6 offset3">
+    {{#if showViewTable}}
+    {{> viewTable}}
+    {{else}}
+    {{#if showEditTable}}
+    {{> editTable}}
+    {{else}}
+    {{> hero}}
+    {{/if}}
+    {{/if}}
   </div>
 </template>
 
-<template name="main">
-  <div id="main">
-    <!-- <h2>Main</h2> -->
-    {{#if showViewTable}}
-    {{> viewTable}}
-    {{/if}}
-    {{#if showEditTable}}
-    {{> editTable}}
-    {{/if}}
+<template name="hero">
+  <div id="intro" class="hero-unit">
+    <h1>&#x229e;Tablo</h1>
+    <p>
+      <em>Making contingency tables fun!</em>
+    </p>
+    <p>
+      Click on a table in the sidebar to select it. Click on a mosaic plot to rotate to the next permutation of variables. Take a look at the <a href="https://github.com/scentoni/tablo">source</a>. For more information, see these articles:
+    </p>
+    <ul>
+      <li><a href="http://en.wikipedia.org/wiki/Contingency_table">contingency tables</a></li>
+      <li><a href="http://www.datavis.ca/papers/moshist.pdf">mosaic plots</a></li>
+      <li><a href="http://www.stat.cmu.edu/~gklein/discrete/OpeningExamples-2011.pdf">sample data</a></li>
+      <li><a href="http://en.wikipedia.org/wiki/Pearson%27s_chi-squared_test">chi-squared test</a></li>
+      <li><a href="http://en.wikipedia.org/wiki/Sensitivity_and_specificity">sensitivity and specificity</a></li>
+      <li><a href="http://www.vassarstats.net/abc.html">3-way tables</a></li>
+      <li><a href="http://en.wikipedia.org/wiki/G-test">G test</a></li>
+    </ul>
+    <p>
+      Please sign in to create your own tables.
+    </p>
   </div>
 </template>
 
 <template name="sidebar">
-  <div id="sidebar">
+  <aside id="sidebar" class="span2">
     {{> tableList}}
     {{> userList}}
   </div>
 </template>
 
 <template name="userList">
-  <table id="userlist">
+  <table id="userlist" class="table table-striped table-bordered table-condensed">
     <caption>Users</caption>
     <tbody>
       {{#each userList}}
       <tr>
         <td>{{displayUsername}}<br/>
-        <em><code>{{displayUserID}}</code></em></td>
-      </tr>
-      {{/each}}
-    </tbody>
-  </table>
-</template>
-
-<template name="tableList">
-  <table id="tablelist">
-    <caption>Tables</caption>
-    <tbody>
-      {{#each tableList}}
-      <tr>
-        <td>
-          <span id="{{thumb-lookupTableID}}">
-            <img src="data:image/svg+xml;base64,{{displayThumbnail}}" height="50" width="50">
-          </span>
-        </td>
-        <td>
-          {{displayOwner}}<br/>
-          {{displayTitle}}<br/>
-          <em><code>{{lookupTableID}}</code></em></td>
+          <em><code>{{displayUserID}}</code></em></td>
         </tr>
-        {{else}}
-        <em>loading...</em>
         {{/each}}
       </tbody>
     </table>
-    {{#if currentUser}}
-    <button id="addtable">Add</button>
-    {{/if}}
   </template>
 
-  <template name="mosaic">
-    <div class="mosaic">
-      {{#constant}}
-      <svg width="300" height="300">
-        <g class="rectangles"></g>
-        <g class="labels"></g>
-      </svg>
-      {{/constant}}
-    </div>
-  </template>
-
-  <template name="viewTable">
-    <h2>{{title}}</h2>
-    <p>{{description}}</p>
-    {{> mosaic}}
-    {{#if table2d}}
-    <table class="viewtable">
-      <caption></caption>
-      <thead>
-        <tr>
-          <th></th>
-          <th></th>
-          <th colspan="{{colspan}}">{{v1}}</th>
-        </tr>
-        <tr>
-          <th></th>
-          <th></th>
-          {{#each eachcol}}
-          <th>{{c1item col}}</th>
-          {{/each}}
-          <th class="margin-col">total</th>
-        </tr>
-      </thead>
+  <template name="tableList">
+    <table id="tablelist" class="table table-striped table-bordered table-condensed table-hover">
+      <caption>Tables</caption>
       <tbody>
-        {{#each eachrow}}
+        {{#each tableList}}
         <tr>
-          {{#if firstrow row}}
-          <th rowspan="{{rowspan}}">{{v0}}</th>
-          {{/if}}
-          <th>{{c0item row}}</th>
-          {{#each eachcol}}
-          <td>{{cell ../row col}}</td>
+          <td>
+            <span id="{{thumb-lookupTableID}}">
+              <img src="data:image/svg+xml;base64,{{displayThumbnail}}" height="50" width="50">
+            </span>
+          </td>
+          <td>
+            {{displayOwner}}<br/>
+            {{displayTitle}}<br/>
+            {{dimensions}}
+            <em><code>{{lookupTableID}}</code></em></td>
+          </tr>
+          {{else}}
+          <em>loading...</em>
           {{/each}}
-          <td class="margin-col">{{mcol row}}</td>
-        </tr>
-        {{/each}}
-        <tr class="margin-row">
-          <th>total</th>
-          {{#each eachcol}}
-          <td>{{mrow col}}</td>
-          {{/each}}
-          <td class="margin-col">{{grandtotal}}</td>
-        </tr>
-      </tbody>
-    </table>
-    {{/if}}
-    <p>
-      <em>df</em>={{df}}
-      &nbsp;
-      <em>&#x03C7;&#x00B2;</em>={{chi2}}
-      &nbsp;
-      <em>G</em>={{gstat}}
-      &nbsp;
-      <em>P</em>={{pvalue}}
-    </p>
-    {{#if isPrivate}}
-    Private!
-    {{/if}}
-    <button type="button" id="viewclose">Close</button>
-    {{#if isModifiable}}
-    <button type="button" id="viewsave">Save View</button>
-    <button type="button" id="viewedit">Edit</button>
-    <button type="button" id="viewdelete">Delete</button>
-    {{/if}}
-    <p>If your table is public, you can share the following links:</p>
-    <ul>
-      <li> <a href="{{root}}/tables/{{id}}.svg">svg</a> image </li>
-      <li> <a href="{{root}}/tables/{{id}}.csv">csv</a> for a spreadsheet program </li>
-      <li> <a href="{{root}}/tables/{{id}}.tsv">tsv</a> for a spreadsheet program </li>
-      <li> <a href="{{root}}/tables/{{id}}.json">json</a> </li>
-    </ul>
-  </template>
-
-  <!-- inspired by http://stackoverflow.com/questions/14059157/handlebars-js-each-loop-inside-another-each-loop-3 -->
-  <template name="editTable">
-    <p>Editing</p>
-    <form>
-      <input class="title" name="title" type="text" value="{{title}}" />
-      <p><input class="description" name="description" type="text" value="{{description}}" /></p>
-      <table class="edittable">
-        <caption>editing</caption>
-        <thead>
-          <tr>
-            <th></th>
-            <th></th>
-            <th colspan="{{colspan}}"><input class="variable" name="variable1" type="text" value="{{v1}}" /></th>
-          </tr>
-          <tr>
-            <th></th>
-            <th></th>
-            {{#each eachcol}}
-            <th><input class="category" name="category1,{{col}}" type="text" value="{{c1item col}}" /></th>
-            {{/each}}
-            <th class="margin-col"><button type="button" class="insertcol" name="insertcol">+</button>total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{#each eachrow}}
-          <tr>
-            {{#if firstrow row}}
-            <th rowspan="{{rowspan}}"><input class="variable" name="variable0" type="text" value="{{v0}}" /></th>
-            {{/if}}
-            <th><input class="category" name="category0,{{row}}" type="text" value="{{c0item row}}" /></th>
-            {{#each eachcol}}
-            <td><input class="cell" name="cell{{../row}},{{col}}" type="number" value="{{cell ../row col}}" /></td>
-            {{/each}}
-            <td class="margin-col">{{mcol row}}<button type="button" class="deleterow" name="deleterow{{row}}">X</button></td>
-          </tr>
-          {{/each}}
-          <tr class="margin-row">
-            <th><button type="button" class="insertrow" name="insertrow">+</button>total</th>
-            {{#each eachcol}}
-            <td>{{mrow col}}<button type="button" class="deletecol" name="deletecol{{col}}">X</button></td>
-            {{/each}}
-            <td class="margin-col">{{grandtotal}}</td>
-          </tr>
         </tbody>
       </table>
-      Public:<input id="publicq" checked="{{publicq}}" type="checkbox" />
-      <button type="button" id="editsave">Save</button>
-      <button type="button" id="editcancel">Cancel</button>
-    </form>
-  </template>
+      {{#if currentUser}}
+      <button id="addtable" class="btn"><i class="icon-plus"/> Add</button>
+      {{/if}}
+    </template>
 
-  <template name="footer">
-    <div id="footer">
-      <p>Click on a table in the sidebar to select it. Click on a mosaic plot to rotate to the next permutation of variables. Take a look at the <a href="https://github.com/scentoni/tablo">source</a>. For more information, see these articles:</p>
-      <ul>
-        <li><a href="http://en.wikipedia.org/wiki/Contingency_table">contingency tables</a></li>
-        <li><a href="http://www.datavis.ca/papers/moshist.pdf">mosaic plots</a></li>
-        <li><a href="http://www.stat.cmu.edu/~gklein/discrete/OpeningExamples-2011.pdf">sample data</a></li>
-        <li><a href="http://en.wikipedia.org/wiki/Pearson%27s_chi-squared_test">chi-squared test</a></li>
-        <li><a href="http://en.wikipedia.org/wiki/Sensitivity_and_specificity">sensitivity and specificity</a></li>
-        <li><a href="http://www.vassarstats.net/abc.html">3-way tables</a></li>
-        <li><a href="http://en.wikipedia.org/wiki/G-test">G test</a></li>
-      </ul>
-    </div>
-  </template>
+    <template name="mosaic">
+      <div id="mosaic" class="mosaic">
+        {{#constant}}
+        <svg width="300" height="300">
+          <g class="rectangles"></g>
+          <g class="labels"></g>
+        </svg>
+        {{/constant}}
+      </div>
+    </template>
+
+    <template name="viewTable">
+      <h2>{{title}}
+        {{#if isPrivate}}
+        <span class="label label-inverse">Private</span>
+        {{/if}}
+      </h2>
+      {{#if isModifiable}}
+      <button type="button" id="viewdelete" class="btn btn-danger"><i class="icon-remove icon-white"/> Delete</button>
+      <button type="button" id="viewedit" class="btn btn-warning"><i class="icon-edit icon-white"/> Edit</button>
+      <button type="button" id="viewsave" class="btn btn-primary"><i class="icon-ok icon-white"/> Save View</button>
+      {{/if}}
+      <button type="button" id="viewclose" class="btn close">Close</button>
+      <p>{{description}}</p>
+      {{> mosaic}}
+      {{#if table2d}}
+      <div id="rbyc">
+        <table class="viewtable table">
+          <caption></caption>
+          <thead>
+            <tr>
+              <th></th>
+              <th></th>
+              <th colspan="{{colspan}}">{{v1}}</th>
+            </tr>
+            <tr>
+              <th></th>
+              <th></th>
+              {{#each eachcol}}
+              <th>{{c1item col}}</th>
+              {{/each}}
+              <th class="margin-col">total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each eachrow}}
+            <tr>
+              {{#if firstrow row}}
+              <th rowspan="{{rowspan}}">{{v0}}</th>
+              {{/if}}
+              <th>{{c0item row}}</th>
+              {{#each eachcol}}
+              <td>{{cell ../row col}}</td>
+              {{/each}}
+              <td class="margin-col">{{mcol row}}</td>
+            </tr>
+            {{/each}}
+            <tr class="margin-row">
+              <th>total</th>
+              {{#each eachcol}}
+              <td>{{mrow col}}</td>
+              {{/each}}
+              <td class="margin-col">{{grandtotal}}</td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+      {{/if}}
+      <div id="text">
+        <p>
+          <em>df</em>={{df}}
+          &nbsp;
+          <em>&#x03C7;&#x00B2;</em>={{chi2}}
+          &nbsp;
+          <em>G</em>={{gstat}}
+          &nbsp;
+          <em>P</em>={{pvalue}}
+          <div class="tabular">
+            <pre>
+              {{tabular}}
+            </pre>
+          </div>
+        </p>
+
+      </div>
+      <p>If your table is public, you can share or download the following links:</p>
+      <dl class="dl">
+        <dt><a href="{{root}}/tables/{{id}}.svg">{{root}}/tables/{{id}}.svg</a></dt><dd><a href="http://en.wikipedia.org/wiki/Scalable_Vector_Graphics">Scalable Vector Graphics</a> image</dd>
+        <dt><a href="{{root}}/tables/{{id}}.csv">{{root}}/tables/{{id}}.csv</a></dt><dd><a href="http://en.wikipedia.org/wiki/Comma-separated_values">comma-separated value</a> data for a spreadsheet program</dd>
+        <dt><a href="{{root}}/tables/{{id}}.tsv">{{root}}/tables/{{id}}.tsv</a></dt><dd><a href="http://en.wikipedia.org/wiki/Tab-separated_values">tab-separated value</a> data for a spreadsheet program</dd>
+        <dt><a href="{{root}}/tables/{{id}}.json">{{root}}/tables/{{id}}.json</a></dt><dd><a href="http://en.wikipedia.org/wiki/JSON">JSON</a> data</dd>
+      </dl>
+    </template>
+
+    <!-- inspired by http://stackoverflow.com/questions/14059157/handlebars-js-each-loop-inside-another-each-loop-3 -->
+    <template name="editTable">
+      <p>Editing</p>
+      <form>
+        <input class="title" name="title" type="text" value="{{title}}" />
+        <p><input class="description" name="description" type="text" value="{{description}}" /></p>
+        <table class="edittable table">
+          <caption>editing</caption>
+          <thead>
+            <tr>
+              <th></th>
+              <th></th>
+              <th colspan="{{colspan}}"><input class="variable" name="variable1" type="text" value="{{v1}}" /></th>
+            </tr>
+            <tr>
+              <th></th>
+              <th></th>
+              {{#each eachcol}}
+              <th><input class="category" name="category1,{{col}}" type="text" value="{{c1item col}}" /></th>
+              {{/each}}
+              <th class="margin-col"><button type="button" class="insertcol" name="insertcol">+</button>total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each eachrow}}
+            <tr>
+              {{#if firstrow row}}
+              <th rowspan="{{rowspan}}"><input class="variable" name="variable0" type="text" value="{{v0}}" /></th>
+              {{/if}}
+              <th><input class="category" name="category0,{{row}}" type="text" value="{{c0item row}}" /></th>
+              {{#each eachcol}}
+              <td><input class="cell" name="cell{{../row}},{{col}}" type="number" value="{{cell ../row col}}" /></td>
+              {{/each}}
+              <td class="margin-col">{{mcol row}}<button type="button" class="deleterow" name="deleterow{{row}}">X</button></td>
+            </tr>
+            {{/each}}
+            <tr class="margin-row">
+              <th><button type="button" class="insertrow" name="insertrow">+</button>total</th>
+              {{#each eachcol}}
+              <td>{{mrow col}}<button type="button" class="deletecol" name="deletecol{{col}}">X</button></td>
+              {{/each}}
+              <td class="margin-col">{{grandtotal}}</td>
+            </tr>
+          </tbody>
+        </table>
+        <label class="checkbox">
+          <input type="checkbox" id="privateq" checked="{{privateq}}"> Private
+        </label>
+        <button type="button" id="editsave" class="btn btn-primary"><i class="icon-ok icon-white"/>Save</button>
+        <button type="button" id="editcancel" class="btn close">Cancel</button>
+      </form>
+    </template>
+
+    <template name="footer">
+      <footer>
+        <p class="pull-right"><a href="#">Back to top</a></p>
+        <p>&copy; 2013 Scott Centoni &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a></p>
+      </footer>
+    </template>
